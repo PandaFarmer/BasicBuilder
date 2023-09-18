@@ -1,0 +1,5 @@
+*
+*/
+!BasicBuilder.csproj
+!Scripts/*
+!.gitignore
