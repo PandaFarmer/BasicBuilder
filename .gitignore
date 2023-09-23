@@ -3,3 +3,4 @@
 !BasicBuilder.csproj
 !*/Scripts
 !.gitignore
+!*.py

@@ -59,7 +59,8 @@ public class BuildableEditor : Node2D
 	public Dictionary<int, TextureScaleHandler> _buildables_icon_textures;
 	public Dictionary<int, int> _buildables_palette;
 	public Dictionary<int, float> _buildables_palette_rotations;
-	public Dictionary<int, Vector2> _buildables_palette_scales;
+	public Dictionary<int, Vector2> _buildables_dimensions;//sprite and socket dimensions..
+	public Dictionary<int, Vector2> _buildables_texture_scales;
 
 	public Buildable _queued_buildable;
 
@@ -68,7 +69,7 @@ public class BuildableEditor : Node2D
 	public MenuContainer _menu_container;
 	public Panel _palette_container;
 
-	public static float _GRID_BLOCK_SIZE = 10;
+	public static float _GRID_BLOCK_SIZE = 100;
 	public Vector2 _GRID_ORIGIN;
 
 	public bool _in_build_mode;
@@ -83,7 +84,8 @@ public class BuildableEditor : Node2D
 		_buildables_icon_textures = new Dictionary<int, TextureScaleHandler>();
 		_buildables_palette = new Dictionary<int, int>();
 		_buildables_palette_rotations = new Dictionary<int, float>();
-		_buildables_palette_scales = new Dictionary<int, Vector2>();
+		_buildables_dimensions = new Dictionary<int, Vector2>();
+		_buildables_texture_scales = new Dictionary<int, Vector2>();
 
 		_palette_container = (Panel)FindNode("PanelPalette");
 		
@@ -102,13 +104,13 @@ public class BuildableEditor : Node2D
 		{
 
 			_cursorLocation = eventMouseMotion.Position;
-			if(_DEBUG && _in_selection_mode)
+			if(_SCREEN_DEBUG && _in_selection_mode)
 			{
 				GD.Print("new selection mode _cursorLocation: ", _cursorLocation);
 			}
 			if(!_in_menu_mode && _queued_buildable != null)
 			{
-				_queued_buildable.Position = _cursorLocation;
+				_queued_buildable.Position = SnapToGrid(_cursorLocation);
 			}
 		}
 		if (@event is InputEventMouseButton eventMouseButton)
@@ -144,7 +146,6 @@ public class BuildableEditor : Node2D
 					GD.Print("Hovered buildable id: ", hovered_buildableId);
 					if(hovered_buildableId == -1)
 						GD.Print("WARNING: no hovered buildable found");
-
 				}
 				
 				//Buildable hovered_buildable = _buildables_dictionary[_buildableId].Duplicate();
@@ -192,7 +193,9 @@ public class BuildableEditor : Node2D
 		String texture_path = String.Format("res://{0}/{1}{2}_{3}.png", buildable.buildablePathName, buildable.buildablePathName, texture_path_prefix, (int)rotation);
 		Texture texture = GD.Load<Texture>(texture_path);
 		// _queued_buildable.Rotation = ;
-		_queued_buildable.SetTexture(texture);
+		_queued_buildable.dimensions = _buildables_dimensions[buildableId];//sprite and socket dimensions..
+		_queued_buildable.SetTexture(texture, _GRID_BLOCK_SIZE);
+		// _queued_buildable.Scale = buildable.textureScale;
 		AddChild(_queued_buildable);
 	}
 
@@ -253,6 +256,10 @@ public class BuildableEditor : Node2D
 			buildable = (Buildable)buildableScene.Instance();
 
 			buildable.dimensions = new Vector2(buildableInfo.dimension_x, buildableInfo.dimension_y);
+			if(_DEBUG)
+			{
+				GD.Print("buildable with dimensions: ", buildable.dimensions);
+			}
 			buildable.buildableName = buildableInfo.buildable_name;
 			buildable.buildablePathName = buildableInfo.path_name;
 
@@ -265,22 +272,24 @@ public class BuildableEditor : Node2D
 
 			texture_path = String.Format("res://{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, small_texture_path_suffix);
 			small_texture = GD.Load<Texture>(texture_path);
-			buildable.menuTexture = small_texture;
+			buildable.smallMenuTexture = small_texture;
 
 			texture_path = String.Format("res://{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, medium_texture_path_suffix);
 			medium_texture = GD.Load<Texture>(texture_path);
-			buildable.menuTexture = medium_texture;
+			buildable.mediumMenuTexture = medium_texture;
 
 			texture_path = String.Format("res://{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, large_texture_path_suffix);
 			large_texture = GD.Load<Texture>(texture_path);
-			buildable.menuTexture = large_texture;
+			buildable.LargeMenuTexture = large_texture;
 
 			textureScaleHandler = new TextureScaleHandler(small_texture, medium_texture, large_texture);
 
-			_buildables_dictionary[buildableInfo.buildable_id] = buildable;
+
 			_buildables_categories[buildableInfo.buildable_id] = buildableInfo.categories;
 			_buildables_icon_textures[buildableInfo.buildable_id] = textureScaleHandler;
-			_buildables_palette_scales[buildableInfo.buildable_id] = new Vector2(buildableInfo.texture_scale_x, buildableInfo.texture_scale_y);
+			_buildables_dimensions[buildableInfo.buildable_id] = new Vector2(buildableInfo.dimension_x, buildableInfo.dimension_y);
+			_buildables_texture_scales[buildableInfo.buildable_id] = new Vector2(buildableInfo.texture_scale_x, buildableInfo.texture_scale_y);
+			_buildables_dictionary[buildableInfo.buildable_id] = buildable;
 		}
 	}
 
@@ -311,7 +320,7 @@ public class BuildableEditor : Node2D
 					GD.Print("Adding buildable with\nid: ", kvp.Key, "\ncategory: ", kvp.Value, "\nname: ", _buildables_dictionary[kvp.Key].Name);
 				}
 				buildableButton = (BuildableButton)buildableButtonScene.Instance();
-				buildableButton.SetTexture(_buildables_icon_textures[kvp.Key].mediumTexture);//, _buildables_palette_scales[kvp.Key]);
+				buildableButton.SetTexture(_buildables_icon_textures[kvp.Key].mediumTexture);//, _buildables_texture_scales[kvp.Key]);
 				buildableButton.buildableId = kvp.Key;
 				buildableButton.isPaletteItem = false;
 				_menu_container.AddToTab(category, buildableButton);
@@ -382,7 +391,6 @@ public class BuildableEditor : Node2D
 	{
 		_buildables_palette[paletteBlock] = buildableId;
 		_buildables_palette_rotations[paletteBlock] = 0;
-		_buildables_palette_scales[paletteBlock] = _buildables_dictionary[buildableId].Scale;
 
 
 		foreach(Node node in _palette_container.GetChildren())
@@ -408,10 +416,9 @@ public class BuildableEditor : Node2D
 		}
 	}
 
-	public void SnapToGrid(Buildable buildable)
+	public Vector2 SnapToGrid(Vector2 position)
 	{
-		Vector2 snap_position = _cursorLocation;
-		buildable.Position = new Vector2(ClosestGlobalCoordOnGrid(_cursorLocation.x, 0), ClosestGlobalCoordOnGrid(_cursorLocation.y, 1));
+		return new Vector2(ClosestGlobalCoordOnGrid(_cursorLocation.x, 0), ClosestGlobalCoordOnGrid(_cursorLocation.y, 1));
 	}
 
 	public Vector2 BuildableFlipScale(Buildable buildable, int buildableId)
@@ -433,8 +440,7 @@ public class BuildableEditor : Node2D
 
 	public bool ValidPlacement(Buildable buildable)
 	{
-		int length = buildable.GetOverlappingAreas().Count;
-		return length == 0;
+		return buildable.GetOverlappingAreas().Count == 0;
 
 		//if you wanted to complicate things with groups:
 		// foreach(Area2D area2D in buildable.getOverlappingAreas())
