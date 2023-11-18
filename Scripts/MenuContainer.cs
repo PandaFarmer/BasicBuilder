@@ -7,14 +7,14 @@ public class MenuContainer : TabContainer
 	public bool _DEBUG = true;
 	public TabContainer tabContainer;
 
-	public void AddToTab(String tabCategory, InventoryItemButton inventoryItemButton)
+	public void AddToTab(String tabCategory, BuildableButton buildableButton)
 	{
-		InventoryItemList inventoryItemList = (InventoryItemList)FindNode(tabCategory+"Grid");
+		MenuGridContainer menuGridContainer = (MenuGridContainer)FindNode(tabCategory+"Grid");
 		if(_DEBUG)
 		{
-			GD.Print("Adding InventoryItemButton to tabCategory: ", tabCategory);
+			GD.Print("Adding buildableButton to tabCategory: ", tabCategory);
 		}
-		inventoryItemList.Add(inventoryItemButton);
+		menuGridContainer.Add(buildableButton);
 		return;
 	}
 

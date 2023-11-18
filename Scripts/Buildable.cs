@@ -1,7 +1,6 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Data;
 
 public class Buildable : Area2D
 {
@@ -19,11 +18,9 @@ public class Buildable : Area2D
 	public Vector2 dimensions;
 	public List<Vector2> socketConnectabilityPoints;//Vector2 should b hashable..
 	public Dictionary<Vector2, Buildable> attachedBuildables;
-	public Dictionary<ulong, Buildable> buildableCollisions;
+
 	public bool isIsometric;
 	public bool isRotationallyIsomorphic;
-	public CollisionShape2D collisionShape2D;
-	public RectangleShape2D rectangleShape2D;
 
 	public string labelName;
 
@@ -38,15 +35,9 @@ public class Buildable : Area2D
 				RectangleShape2D collisionRect = new RectangleShape2D();
 				collisionRect.Extents = dimensions*BuildableEditor._GRID_BLOCK_SIZE/2f;
 				collisionShape2D.Shape = collisionRect;
-				if(_DEBUG)
-				{
-					GD.Print("collisionRect.Extents: ", collisionRect.Extents);
-					GD.Print("collisionShape2D.Shape", collisionShape2D.Shape);
-				}
 				return;
 			}
 		}
-
 	}
 
 
@@ -107,43 +98,4 @@ public class Buildable : Area2D
 			}
 		}
 	}
-
-	public void _OnAreaEntered(Area2D area)
-	{
-		if (area is Buildable buildable)
-		{
-			buildableCollisions[area.GetInstanceId()] = (Buildable)area;
-			return;
-		}
-		if(_DEBUG)
-		{
-			GD.Print("WARNING COLLISION ENTER SIGNAL WITH NON BUILDABLE AREA2D");
-		}
-		
-	}
-
-	public void _OnAreaExited(Area2D area)
-	{
-		if (area is Buildable buildable)
-		{
-			buildableCollisions.Remove(area.GetInstanceId());
-			return;
-		}
-		if(_DEBUG)
-		{
-			GD.Print("WARNING COLLISION EXIT SIGNAL WITH NON BUILDABLE AREA2D");
-		}
-	}
 }
-
-
-// private void _OnAreaEntered(object area)
-// {
-// 	// Replace with function body.
-// }
-
-
-// private void _OnAreaExited(object area)
-// {
-// 	// Replace with function body.
-// }
