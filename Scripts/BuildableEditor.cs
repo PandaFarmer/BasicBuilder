@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 public class BuildableInfoListWrapper
 {
@@ -446,13 +447,25 @@ public class BuildableEditor : Node2D
 		{
 			GD.Print("buildable.GetOverlappingAreas().Count: ", buildable.GetOverlappingAreas().Count);
 		}
+		int bitmaskBuildable, bitmaskSceneBuildable;
 		foreach(Node node in GetChildren())//if GetOverlapping Areas doesn't include lightly touching/adjacent but nonoverlap
 		{
 			if(node is Buildable sceneBuildable)
 			{
-				if(buildable.sceneBuildable.MaxMinBounds() sceneBuildable.MaxMinBounds())
+				if(buildable.HasOverlap(sceneBuildable))
 				{
-
+					return false;//unless.. there is an allowed interaction layering.. see _BUILD_COLLISION_LAYER
+				}
+				if(buildable.IsTouching(sceneBuildable))
+				{
+					foreach(Vector2 socketCoord in buildable.socketConnectabilityMap.Keys)
+					{
+						if(sceneBuildable.socketConnectabilityMap.Keys.Contains(socketCoord) && )
+						{
+							if(buildable.socketConnectabilityMap[])
+						}
+					}
+					//check sockets
 				}
 			}
 		}

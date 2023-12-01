@@ -126,8 +126,8 @@ public class Buildable : Area2D
 		Vector2 maxVOther = mmBoundsOther[1];
 		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x;
 		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y;
-		bool equalX = minVThis.x == minVOther.x || minVThis.x == maxVOther.x;
-		bool equalY = minVThis.y == minVOther.y || minVThis.y == maxVOther.y;
+		bool equalX = maxVThis.x == minVOther.x || minVThis.x == maxVOther.x;
+		bool equalY = maxVThis.y == minVOther.y || minVThis.y == maxVOther.y;
 		return (thisXBetween && equalY) || (thisYBetween && equalX);
 	}
 
