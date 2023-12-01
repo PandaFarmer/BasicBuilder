@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+// using System.Numerics;
 
 public class Buildable : Area2D
 {
@@ -16,7 +17,7 @@ public class Buildable : Area2D
 	public string buildableName;
 	public string buildablePathName;
 	public Vector2 dimensions;
-	public List<Vector2> socketConnectabilityPoints;//Vector2 should b hashable..
+	public Dictionary<Vector2, int> socketConnectabilityMap;
 	public Dictionary<Vector2, Buildable> attachedBuildables;
 
 	public bool isIsometric;
