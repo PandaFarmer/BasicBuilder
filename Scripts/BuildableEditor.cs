@@ -126,6 +126,7 @@ public class BuildableEditor : Node2D
 				{
 					AddChild((Buildable)_queued_buildable.Duplicate());
 				}
+				//add code for invalid placement
 			}
 		}
 		if (@event is InputEventKey eventKeyPress)
@@ -441,6 +442,20 @@ public class BuildableEditor : Node2D
 
 	public bool ValidPlacement(Buildable buildable)
 	{
+		if(_DEBUG)
+		{
+			GD.Print("buildable.GetOverlappingAreas().Count: ", buildable.GetOverlappingAreas().Count);
+		}
+		foreach(Node node in GetChildren())//if GetOverlapping Areas doesn't include lightly touching/adjacent but nonoverlap
+		{
+			if(node is Buildable sceneBuildable)
+			{
+				if()
+				{
+					
+				}
+			}
+		}
 		return buildable.GetOverlappingAreas().Count == 0;
 
 		//if you wanted to complicate things with groups:

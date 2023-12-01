@@ -20,8 +20,8 @@ public class Buildable : Area2D
 	public Dictionary<Vector2, int> socketConnectabilityMap;
 	public Dictionary<Vector2, Buildable> attachedBuildables;
 
-	public bool isIsometric;
-	public bool isRotationallyIsomorphic;
+	// public bool isIsometric;
+	// public bool isRotationallyIsomorphic;
 
 	public string labelName;
 
@@ -98,5 +98,17 @@ public class Buildable : Area2D
 				return;
 			}
 		}
+	}
+
+	public List<Vector2> MaxMinBounds()
+	{
+		float halfdimX = dimensions.x/2f;
+		float halfdimY = dimensions.y/2f;
+		Vector2 minV = new Vector2(Position.x-halfdimX, Position.y-halfdimY);
+		Vector2 maxV = new Vector2(Position.x+halfdimX, Position.y+halfdimY);
+		List<Vector2> mmList = new List<Vector2>();
+		mmList.Add(minV);
+		mmList.Add(maxV);
+		return mmList;
 	}
 }
