@@ -450,9 +450,9 @@ public class BuildableEditor : Node2D
 		{
 			if(node is Buildable sceneBuildable)
 			{
-				if()
+				if(buildable.sceneBuildable.MaxMinBounds() sceneBuildable.MaxMinBounds())
 				{
-					
+
 				}
 			}
 		}

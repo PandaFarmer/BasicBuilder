@@ -100,6 +100,37 @@ public class Buildable : Area2D
 		}
 	}
 
+	public bool HasOverlap(Buildable buildable)
+	{
+		// return GetOverlappingAreas().Contains(buildable);
+		//in case a more transparent custom version is required:
+		List<Vector2> mmBoundsThis = MaxMinBounds();
+		List<Vector2> mmBoundsOther = buildable.MaxMinBounds();
+		Vector2 minVThis = mmBoundsThis[0];
+		Vector2 maxVThis = mmBoundsThis[1];
+		Vector2 minVOther = mmBoundsOther[0];
+		Vector2 maxVOther = mmBoundsOther[1];
+		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x;
+		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y;
+		return thisXBetween && thisYBetween;
+	}
+
+	public bool IsTouching(Buildable buildable)
+	{
+		//also in case a more transparent custom version is required:
+		List<Vector2> mmBoundsThis = MaxMinBounds();
+		List<Vector2> mmBoundsOther = buildable.MaxMinBounds();
+		Vector2 minVThis = mmBoundsThis[0];
+		Vector2 maxVThis = mmBoundsThis[1];
+		Vector2 minVOther = mmBoundsOther[0];
+		Vector2 maxVOther = mmBoundsOther[1];
+		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x;
+		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y;
+		bool equalX = minVThis.x == minVOther.x || minVThis.x == maxVOther.x;
+		bool equalY = minVThis.y == minVOther.y || minVThis.y == maxVOther.y;
+		return (thisXBetween && equalY) || (thisYBetween && equalX);
+	}
+
 	public List<Vector2> MaxMinBounds()
 	{
 		float halfdimX = dimensions.x/2f;
