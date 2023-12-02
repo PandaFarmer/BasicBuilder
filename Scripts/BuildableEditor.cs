@@ -447,7 +447,8 @@ public class BuildableEditor : Node2D
 		{
 			GD.Print("buildable.GetOverlappingAreas().Count: ", buildable.GetOverlappingAreas().Count);
 		}
-		int bitmaskBuildable, bitmaskSceneBuildable;
+		int bitmaskBuildable, bitmaskSceneBuildable = 0;
+		
 		foreach(Node node in GetChildren())//if GetOverlapping Areas doesn't include lightly touching/adjacent but nonoverlap
 		{
 			if(node is Buildable sceneBuildable)
@@ -456,14 +457,11 @@ public class BuildableEditor : Node2D
 				{
 					return false;//unless.. there is an allowed interaction layering.. see _BUILD_COLLISION_LAYER
 				}
-				if(buildable.IsTouching(sceneBuildable))
+				if(buildable.IsTouching(sceneBuildable))//what about interior sockets?
 				{
-					foreach(Vector2 socketCoord in buildable.socketConnectabilityMap.Keys)
+					if(buildable.HasMismatchedSockets(sceneBuildable))
 					{
-						if(sceneBuildable.socketConnectabilityMap.Keys.Contains(socketCoord) && )
-						{
-							if(buildable.socketConnectabilityMap[])
-						}
+						return false;
 					}
 					//check sockets
 				}

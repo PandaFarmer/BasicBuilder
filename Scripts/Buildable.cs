@@ -29,12 +29,12 @@ public class Buildable : Area2D
 	{
 		// addToGroup(_BUILD_GROUP);
 		CollisionLayer = _BUILD_COLLISION_LAYER;
-		foreach(Node child in GetChildren())
+		foreach (Node child in GetChildren())
 		{
-			if(child is CollisionShape2D collisionShape2D)
+			if (child is CollisionShape2D collisionShape2D)
 			{
 				RectangleShape2D collisionRect = new RectangleShape2D();
-				collisionRect.Extents = dimensions*BuildableEditor._GRID_BLOCK_SIZE/2f;
+				collisionRect.Extents = dimensions * BuildableEditor._GRID_BLOCK_SIZE / 2f;
 				collisionShape2D.Shape = collisionRect;
 				return;
 			}
@@ -44,12 +44,12 @@ public class Buildable : Area2D
 
 	public void RotateCounterClockwiseOrthogonal()
 	{
-		this.Rotation = this.Rotation + (float)Math.PI/2f;
+		this.Rotation = this.Rotation + (float)Math.PI / 2f;
 	}
 
 	public void RotateClockwiseOrthogonal()
 	{
-		this.Rotation = this.Rotation - (float)Math.PI/2f;
+		this.Rotation = this.Rotation - (float)Math.PI / 2f;
 	}
 
 	public void FlipHorizontally()
@@ -71,25 +71,25 @@ public class Buildable : Area2D
 
 	public Vector2 TextureScaledDimensions(Texture texture, Vector2 dimensions, float gridBlockSize)
 	{
-		if(_DEBUG)
+		if (_DEBUG)
 		{
 			GD.Print("Found a texture with dims: ", new Vector2());
 		}
-		return new Vector2(gridBlockSize*(dimensions.x/texture.GetWidth()), gridBlockSize*(dimensions.y/texture.GetHeight()));
+		return new Vector2(gridBlockSize * (dimensions.x / texture.GetWidth()), gridBlockSize * (dimensions.y / texture.GetHeight()));
 	}
 
 	public void SetTexture(Texture texture, float gridBlockSize)
 	{
 		// GetGlobalTransformWithCanvas
-		
-		foreach(Node node in GetChildren())
+
+		foreach (Node node in GetChildren())
 		{
-			if(node is Sprite sprite)
+			if (node is Sprite sprite)
 			{
 				sprite.Texture = texture;
 				sprite.GetGlobalTransformWithCanvas();
 				sprite.Scale = TextureScaledDimensions(texture, dimensions, gridBlockSize);
-				if(_DEBUG)
+				if (_DEBUG)
 				{
 					GD.Print("gridBlockSize: ", gridBlockSize);
 					GD.Print("dimensions: ", dimensions);//? 0, 0 after Duplicate?
@@ -110,8 +110,8 @@ public class Buildable : Area2D
 		Vector2 maxVThis = mmBoundsThis[1];
 		Vector2 minVOther = mmBoundsOther[0];
 		Vector2 maxVOther = mmBoundsOther[1];
-		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x;
-		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y;
+		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x || maxVThis.x > minVOther.x && maxVThis.x < maxVOther.x;
+		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y || maxVThis.y > minVOther.y && maxVThis.y < maxVOther.y;
 		return thisXBetween && thisYBetween;
 	}
 
@@ -124,19 +124,37 @@ public class Buildable : Area2D
 		Vector2 maxVThis = mmBoundsThis[1];
 		Vector2 minVOther = mmBoundsOther[0];
 		Vector2 maxVOther = mmBoundsOther[1];
-		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x;
-		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y;
+		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x || maxVThis.x > minVOther.x && maxVThis.x < maxVOther.x;
+		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y || maxVThis.y > minVOther.y && maxVThis.y < maxVOther.y;
 		bool equalX = maxVThis.x == minVOther.x || minVThis.x == maxVOther.x;
 		bool equalY = maxVThis.y == minVOther.y || minVThis.y == maxVOther.y;
 		return (thisXBetween && equalY) || (thisYBetween && equalX);
 	}
 
+	public bool HasMismatchedSockets(Buildable buildable)
+	{
+		foreach (Vector2 socketCoord in socketConnectabilityMap.Keys)
+		{
+			foreach (Vector2 sceneSocketCoord in buildable.socketConnectabilityMap.Keys)
+			{
+				if (socketCoord + Position == sceneSocketCoord + buildable.Position)
+				{
+					if ((socketConnectabilityMap[socketCoord] & buildable.socketConnectabilityMap[sceneSocketCoord]) == 0)
+					{
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+
 	public List<Vector2> MaxMinBounds()
 	{
-		float halfdimX = dimensions.x/2f;
-		float halfdimY = dimensions.y/2f;
-		Vector2 minV = new Vector2(Position.x-halfdimX, Position.y-halfdimY);
-		Vector2 maxV = new Vector2(Position.x+halfdimX, Position.y+halfdimY);
+		float halfdimX = dimensions.x / 2f;
+		float halfdimY = dimensions.y / 2f;
+		Vector2 minV = new Vector2(Position.x - halfdimX, Position.y - halfdimY);
+		Vector2 maxV = new Vector2(Position.x + halfdimX, Position.y + halfdimY);
 		List<Vector2> mmList = new List<Vector2>();
 		mmList.Add(minV);
 		mmList.Add(maxV);
