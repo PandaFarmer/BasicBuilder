@@ -39,6 +39,7 @@ public class Buildable : Area2D
 				return;
 			}
 		}
+		ZIndex = -1;
 	}
 
 

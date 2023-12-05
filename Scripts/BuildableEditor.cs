@@ -300,7 +300,14 @@ public class BuildableEditor : Node2D
 	{
 		var menuScene = GD.Load<PackedScene>("res://Menu.tscn"); // Will load when the script is instanced.
 		_menu_container = (MenuContainer)menuScene.Instance();
-		AddChild(_menu_container);
+		foreach(Node node in GetChildren())
+		{
+			if(node.Name == "MenuCanvasLayer")
+			{
+				node.AddChild(_menu_container);
+				break;
+			}
+		}
 
 		var buildableButtonScene = GD.Load<PackedScene>("res://BuildableButton.tscn"); // Will load when the script is instanced.
 		BuildableButton buildableButton;
