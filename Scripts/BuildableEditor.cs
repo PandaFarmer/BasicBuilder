@@ -118,6 +118,14 @@ public class BuildableEditor : Node2D
 			{
 				_cursor_location = SnapToGrid(_cursorLocation);
 				_queued_buildable.Position = _cursor_location;
+				if(ValidPlacement(_queued_buildable))
+				{
+					_queued_buildable.SetTextureHueGreen();
+				}
+				else
+				{
+					_queued_buildable.SetTextureHueRed();
+				}
 			}
 		}
 		if (@event is InputEventMouseButton eventMouseButton)
@@ -166,7 +174,7 @@ public class BuildableEditor : Node2D
 			}
 			if (_in_build_mode)//update _queued_buildable
 			{
-				int buildableId = -1;
+				// int buildableId = -1;
 				if (Input.IsActionPressed("ui_1"))
 					AssignQueuedBuildableFromPalette(1);
 				else if (Input.IsActionPressed("ui_2"))
@@ -475,7 +483,7 @@ public class BuildableEditor : Node2D
 				}
 				if(buildable.IsTouching(sceneBuildable))//what about interior sockets?
 				{
-					if(buildable.HasMismatchedSockets(sceneBuildable))
+					if(buildable.HasMismatchedSockets(sceneBuildable) || !buildable.HasMatchingSocket(sceneBuildable))
 					{
 						return false;
 					}

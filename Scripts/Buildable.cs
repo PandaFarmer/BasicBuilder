@@ -135,13 +135,24 @@ public class Buildable : Area2D
 
 	public bool HasMatchingSocket(Buildable buildable)
 	{
-
+		foreach (Vector2 socketCoord in socketConnectabilityMap.Keys)
+		{
+			foreach (Vector2 sceneSocketCoord in buildable.socketConnectabilityMap.Keys)
+			{
+				if(MatchingSocketLocation(this, buildable, socketCoord, sceneSocketCoord))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
-	public bool HasAllMatchingSockets(Buildable buildable)
-	{
+	// public bool HasAllMatchingSockets(Buildable buildable)
+	// {
 
-	}
+	// }
+	
 
 	public bool HasMismatchedSockets(Buildable buildable)
 	{
@@ -150,7 +161,7 @@ public class Buildable : Area2D
 			foreach (Vector2 sceneSocketCoord in buildable.socketConnectabilityMap.Keys)
 			{
 				// if (socketCoord + Position == sceneSocketCoord + buildable.Position)
-				if(OpposingSocketDirection(socketCoord, sceneSocketCoord))
+				if (OpposingSocketDirection(socketCoord, sceneSocketCoord))
 				{
 					if ((socketConnectabilityMap[socketCoord] & buildable.socketConnectabilityMap[sceneSocketCoord]) == 0)
 					{
@@ -160,6 +171,11 @@ public class Buildable : Area2D
 			}
 		}
 		return true;
+	}
+
+	public bool MatchingSocketLocation(Buildable b1, Buildable b2, Vector2 v1, Vector2 v2)
+	{
+		return b1.Position+v1 == b2.Position+v2;
 	}
 
 	public bool OpposingSocketDirection(Vector2 v1, Vector2 v2)
@@ -179,5 +195,18 @@ public class Buildable : Area2D
 		mmList.Add(minV);
 		mmList.Add(maxV);
 		return mmList;
+	}
+
+	public void SetTextureHueNeutral()
+	{
+		Modulate = new Color(1f, 1f, 1f);
+	}
+	public void SetTextureHueGreen()
+	{
+		Modulate = new Color(0f, 1f, 0f);
+	}
+	public void SetTextureHueRed()
+	{
+		Modulate = new Color(1f, 0f, 0f);
 	}
 }
