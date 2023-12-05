@@ -88,7 +88,7 @@ public class Buildable : Area2D
 			if (node is Sprite sprite)
 			{
 				sprite.Texture = texture;
-				sprite.GetGlobalTransformWithCanvas();
+				// sprite.GetGlobalTransformWithCanvas();//?
 				sprite.Scale = TextureScaledDimensions(texture, dimensions, gridBlockSize);
 				if (_DEBUG)
 				{
