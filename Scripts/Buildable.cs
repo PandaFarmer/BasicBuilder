@@ -108,10 +108,10 @@ public class Buildable : Area2D
 		//in case a more transparent custom version is required:
 		List<Vector2> mmBoundsThis = MaxMinBounds();
 		List<Vector2> mmBoundsOther = buildable.MaxMinBounds();
-		Vector2 minVThis = mmBoundsThis[0];
-		Vector2 maxVThis = mmBoundsThis[1];
-		Vector2 minVOther = mmBoundsOther[0];
-		Vector2 maxVOther = mmBoundsOther[1];
+		Vector2 minVThis = mmBoundsThis[0] + Position;
+		Vector2 maxVThis = mmBoundsThis[1] + Position;
+		Vector2 minVOther = mmBoundsOther[0] + buildable.Position;
+		Vector2 maxVOther = mmBoundsOther[1] + buildable.Position;
 		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x || maxVThis.x > minVOther.x && maxVThis.x < maxVOther.x;
 		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y || maxVThis.y > minVOther.y && maxVThis.y < maxVOther.y;
 		return thisXBetween && thisYBetween;
@@ -122,10 +122,10 @@ public class Buildable : Area2D
 		//also in case a more transparent custom version is required:
 		List<Vector2> mmBoundsThis = MaxMinBounds();
 		List<Vector2> mmBoundsOther = buildable.MaxMinBounds();
-		Vector2 minVThis = mmBoundsThis[0];
-		Vector2 maxVThis = mmBoundsThis[1];
-		Vector2 minVOther = mmBoundsOther[0];
-		Vector2 maxVOther = mmBoundsOther[1];
+		Vector2 minVThis = mmBoundsThis[0] + Position;
+		Vector2 maxVThis = mmBoundsThis[1] + Position;
+		Vector2 minVOther = mmBoundsOther[0] + buildable.Position;
+		Vector2 maxVOther = mmBoundsOther[1] + buildable.Position;
 		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x || maxVThis.x > minVOther.x && maxVThis.x < maxVOther.x;
 		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y || maxVThis.y > minVOther.y && maxVThis.y < maxVOther.y;
 		bool equalX = maxVThis.x == minVOther.x || minVThis.x == maxVOther.x;
@@ -139,7 +139,7 @@ public class Buildable : Area2D
 		{
 			foreach (Vector2 sceneSocketCoord in buildable.socketConnectabilityMap.Keys)
 			{
-				if(MatchingSocketLocation(this, buildable, socketCoord, sceneSocketCoord))
+				if (MatchingSocketLocation(this, buildable, socketCoord, sceneSocketCoord))
 				{
 					return true;
 				}
@@ -152,7 +152,7 @@ public class Buildable : Area2D
 	// {
 
 	// }
-	
+
 
 	public bool HasMismatchedSockets(Buildable buildable)
 	{
@@ -175,7 +175,7 @@ public class Buildable : Area2D
 
 	public bool MatchingSocketLocation(Buildable b1, Buildable b2, Vector2 v1, Vector2 v2)
 	{
-		return b1.Position+v1 == b2.Position+v2;
+		return b1.Position + v1 == b2.Position + v2;
 	}
 
 	public bool OpposingSocketDirection(Vector2 v1, Vector2 v2)
@@ -200,7 +200,7 @@ public class Buildable : Area2D
 	public void SetTextureHueNeutral()
 	{
 		Modulate = new Color(1f, 1f, 1f, 1f);
-		
+
 	}
 	public void SetTextureOpaque()
 	{
