@@ -17,6 +17,7 @@ public class Vector2Info
 	public float x_value;
 	public float y_value;
 	public int sockettype_bit_mask;
+	public int requirement_bit_mask;
 }
 public class BuildableInfo
 {
@@ -47,8 +48,9 @@ public class TextureScaleHandler
 
 public class BuildableEditor : Node2D
 {
-	public bool _DEBUG = true;
-	public bool _SCREEN_DEBUG;
+	public bool _DEBUG = false;
+	public bool _SCREEN_DEBUG = false;
+	public bool _SOCKET_DEBUG = true;
 
 	public static string _BUILD_GROUP = "BUILD_GROUP";
 
@@ -270,12 +272,15 @@ public class BuildableEditor : Node2D
 			buildable.buildableName = buildableInfo.buildable_name;
 			buildable.buildablePathName = buildableInfo.path_name;
 
-			Dictionary<Vector2, int> socketConnectabilityPoints = new Dictionary<Vector2, int>();
+			Dictionary<Vector2, int> socketConnectabilityMap = new Dictionary<Vector2, int>();
+			Dictionary<Vector2, int> socketRequirementMap = new Dictionary<Vector2, int>();
 			foreach (Vector2Info vector2Info in buildableInfo.socket_connectabilty_points)
 			{
-				socketConnectabilityPoints[new Vector2(vector2Info.x_value, vector2Info.y_value)] = vector2Info.sockettype_bit_mask;
+				socketConnectabilityMap[new Vector2(vector2Info.x_value, vector2Info.y_value)] = vector2Info.sockettype_bit_mask;
+				socketRequirementMap[new Vector2(vector2Info.x_value, vector2Info.y_value)] = vector2Info.requirement_bit_mask;
 			}
-			buildable.socketConnectabilityMap = socketConnectabilityPoints;
+			buildable.socketConnectabilityMap = socketConnectabilityMap;
+			buildable.socketRequirementMap = socketRequirementMap;
 
 			texture_path = String.Format("res://{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, small_texture_path_suffix);
 			small_texture = GD.Load<Texture>(texture_path);
@@ -454,7 +459,7 @@ public class BuildableEditor : Node2D
 
 	public bool ValidPlacement(Buildable buildable)
 	{
-		if(_DEBUG)
+		if(_SOCKET_DEBUG)
 		{
 			GD.Print("buildable.GetOverlappingAreas().Count: ", buildable.GetOverlappingAreas().Count);
 		}

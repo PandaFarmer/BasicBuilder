@@ -18,6 +18,7 @@ public class Buildable : Area2D
 	public string buildablePathName;
 	public Vector2 dimensions;
 	public Dictionary<Vector2, int> socketConnectabilityMap;
+	public Dictionary<Vector2, int> socketRequirementMap;
 	public Dictionary<Vector2, Buildable> attachedBuildables;
 
 	// public bool isIsometric;
@@ -132,13 +133,24 @@ public class Buildable : Area2D
 		return (thisXBetween && equalY) || (thisYBetween && equalX);
 	}
 
+	public bool HasMatchingSocket(Buildable buildable)
+	{
+
+	}
+
+	public bool HasAllMatchingSockets(Buildable buildable)
+	{
+
+	}
+
 	public bool HasMismatchedSockets(Buildable buildable)
 	{
 		foreach (Vector2 socketCoord in socketConnectabilityMap.Keys)
 		{
 			foreach (Vector2 sceneSocketCoord in buildable.socketConnectabilityMap.Keys)
 			{
-				if (socketCoord + Position == sceneSocketCoord + buildable.Position)
+				// if (socketCoord + Position == sceneSocketCoord + buildable.Position)
+				if(OpposingSocketDirection(socketCoord, sceneSocketCoord))
 				{
 					if ((socketConnectabilityMap[socketCoord] & buildable.socketConnectabilityMap[sceneSocketCoord]) == 0)
 					{
@@ -148,6 +160,13 @@ public class Buildable : Area2D
 			}
 		}
 		return true;
+	}
+
+	public bool OpposingSocketDirection(Vector2 v1, Vector2 v2)
+	{
+		Vector2 normV1 = v1.Normalized();
+		Vector2 normV2 = v2.Normalized();
+		return normV1.x == -normV2.x && normV1.y == -normV2.y;
 	}
 
 	public List<Vector2> MaxMinBounds()
