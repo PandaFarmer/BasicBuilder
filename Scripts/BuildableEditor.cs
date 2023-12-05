@@ -79,6 +79,8 @@ public class BuildableEditor : Node2D
 	public bool _in_selection_mode;
 	public Node2D _buildablesRoot;
 
+	public Vector2 _cursor_location;
+
 	public override void _Ready()
 	{
 		_buildables_dictionary = new Dictionary<int, Buildable>();
@@ -112,7 +114,8 @@ public class BuildableEditor : Node2D
 			}
 			if(!_in_menu_mode && _queued_buildable != null)
 			{
-				_queued_buildable.Position = SnapToGrid(_cursorLocation);
+				_cursor_location = SnapToGrid(_cursorLocation);
+				_queued_buildable.Position = _cursor_location;
 			}
 		}
 		if (@event is InputEventMouseButton eventMouseButton)
@@ -200,6 +203,7 @@ public class BuildableEditor : Node2D
 		_queued_buildable.SetTexture(texture, _GRID_BLOCK_SIZE);
 		// _queued_buildable.Scale = buildable.textureScale;
 		AddChild(_queued_buildable);
+		_queued_buildable.Position = _cursor_location;
 	}
 
 	public void SetPaletteButtons()//might not need this?
