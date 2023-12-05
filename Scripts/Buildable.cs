@@ -199,14 +199,15 @@ public class Buildable : Area2D
 
 	public void SetTextureHueNeutral()
 	{
-		Modulate = new Color(1f, 1f, 1f);
+		Modulate = new Color(1f, 1f, 1f, 1f);
+		
 	}
-	public void SetTextureHueGreen()
+	public void SetTextureOpaque()
 	{
-		Modulate = new Color(0f, 1f, 0f);
+		Modulate = new Color(1f, 1f, 1f, .5f);
 	}
 	public void SetTextureHueRed()
 	{
-		Modulate = new Color(1f, 0f, 0f);
+		Modulate = new Color(1f, .2f, .2f, .5f);
 	}
 }

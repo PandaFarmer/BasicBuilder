@@ -120,7 +120,7 @@ public class BuildableEditor : Node2D
 				_queued_buildable.Position = _cursor_location;
 				if(ValidPlacement(_queued_buildable))
 				{
-					_queued_buildable.SetTextureHueGreen();
+					_queued_buildable.SetTextureOpaque();
 				}
 				else
 				{
@@ -138,7 +138,9 @@ public class BuildableEditor : Node2D
 			{
 				if (ValidPlacement(_queued_buildable))
 				{
-					AddChild((Buildable)_queued_buildable.Duplicate());
+					Buildable placementBuildable = (Buildable)_queued_buildable.Duplicate();
+					placementBuildable.SetTextureHueNeutral();
+					AddChild(placementBuildable);
 				}
 				//add code for invalid placement
 			}
@@ -201,8 +203,7 @@ public class BuildableEditor : Node2D
 			RemoveChild(_queued_buildable);
 			// _queued_buildable.Dispose();
 		}
-
-		_queued_buildable = (Buildable)_buildables_dictionary[buildableId].Duplicate();
+		AssignQueuedBuildable((Buildable)_buildables_dictionary[buildableId].Duplicate());
 		string texture_path_prefix = "top_down";
 		Buildable buildable = _buildables_dictionary[buildableId];
 		float rotation = _buildables_palette_rotations[paletteBlock];
@@ -410,8 +411,14 @@ public class BuildableEditor : Node2D
 
 	public void ProcessBuildableButtonPress(int buildableId)
 	{
-		_queued_buildable = (Buildable)_buildables_dictionary[buildableId].Duplicate();
+		AssignQueuedBuildable((Buildable)_buildables_dictionary[buildableId].Duplicate());
 		AddChild(_queued_buildable);
+	}
+
+	public void AssignQueuedBuildable(Buildable buildable)//assigns and sets opacity
+	{
+		_queued_buildable = buildable;
+		_queued_buildable.SetTextureOpaque();
 	}
 
 	public void UpdatePalette(int paletteBlock, int buildableId)
@@ -467,10 +474,10 @@ public class BuildableEditor : Node2D
 
 	public bool ValidPlacement(Buildable buildable)
 	{
-		if(_SOCKET_DEBUG)
-		{
-			GD.Print("buildable.GetOverlappingAreas().Count: ", buildable.GetOverlappingAreas().Count);
-		}
+		// if(_SOCKET_DEBUG)
+		// {
+		// 	GD.Print("buildable.GetOverlappingAreas().Count: ", buildable.GetOverlappingAreas().Count);
+		// }
 		int bitmaskBuildable, bitmaskSceneBuildable = 0;
 		
 		foreach(Node node in GetChildren())//if GetOverlapping Areas doesn't include lightly touching/adjacent but nonoverlap
@@ -488,6 +495,10 @@ public class BuildableEditor : Node2D
 						return false;
 					}
 					//check sockets
+				}
+				if(_SOCKET_DEBUG)
+				{
+					GD.Print("Checked buildable: ", sceneBuildable.Name, "\ninstance id: ", sceneBuildable.GetInstanceId());
 				}
 			}
 		}
