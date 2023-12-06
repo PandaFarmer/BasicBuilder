@@ -188,7 +188,8 @@ public class Buildable : Area2D
 			foreach (Vector2 sceneSocketCoord in buildable.socketConnectabilityMap.Keys)
 			{
 				// if (socketCoord + Position == sceneSocketCoord + buildable.Position)
-				if (OpposingSocketDirection(socketCoord, sceneSocketCoord) && )
+				if (OpposingSocketDirection(socketCoord, sceneSocketCoord) && 
+					MatchingSocketLocation(this, buildable, socketCoord, sceneSocketCoord))
 				{
 					if ((socketConnectabilityMap[socketCoord] & buildable.socketConnectabilityMap[sceneSocketCoord]) == 0)
 					{
@@ -202,7 +203,8 @@ public class Buildable : Area2D
 
 	public bool MatchingSocketLocation(Buildable b1, Buildable b2, Vector2 v1, Vector2 v2)
 	{
-		return b1.Position + v1 == b2.Position + v2;
+		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
+		return b1.Position + v1*gridBlockSize == b2.Position + v2*gridBlockSize;
 	}
 
 	public bool OpposingSocketDirection(Vector2 v1, Vector2 v2)
