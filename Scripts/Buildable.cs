@@ -6,8 +6,10 @@ using System.Collections.Generic;
 public class Buildable : Area2D
 {
 	public bool _DEBUG = true;
+	public bool _SOCKET_DEBUG = true;
 	public static uint _BUILD_COLLISION_LAYER = 1234;
 	// public static string _BUILD_GROUP = "BUILD_GROUP";
+	public int buildableId;
 	public Texture smallMenuTexture;
 	public Texture mediumMenuTexture;
 	public Texture LargeMenuTexture;
@@ -17,6 +19,7 @@ public class Buildable : Area2D
 	public string buildableName;
 	public string buildablePathName;
 	public Vector2 dimensions;
+	
 	public Dictionary<Vector2, int> socketConnectabilityMap;
 	public Dictionary<Vector2, int> socketRequirementMap;
 	public Dictionary<Vector2, Buildable> attachedBuildables;
@@ -102,30 +105,35 @@ public class Buildable : Area2D
 		}
 	}
 
-	public bool HasOverlap(Buildable buildable)
+	public bool HasOverlap(Buildable buildable, float gridBlockSize)
 	{
 		// return GetOverlappingAreas().Contains(buildable);
 		//in case a more transparent custom version is required:
-		List<Vector2> mmBoundsThis = MaxMinBounds();
-		List<Vector2> mmBoundsOther = buildable.MaxMinBounds();
-		Vector2 minVThis = mmBoundsThis[0] + Position;
-		Vector2 maxVThis = mmBoundsThis[1] + Position;
-		Vector2 minVOther = mmBoundsOther[0] + buildable.Position;
-		Vector2 maxVOther = mmBoundsOther[1] + buildable.Position;
+		List<Vector2> mmBoundsThis = MaxMinBounds(gridBlockSize);
+		List<Vector2> mmBoundsOther = buildable.MaxMinBounds(gridBlockSize);
+		if (_SOCKET_DEBUG)
+		{
+			GD.Print("mmBoundsThis: ", mmBoundsThis[0], ", ", mmBoundsThis[1]);
+			GD.Print("mmBoundsOther: ", mmBoundsOther[0], ", ", mmBoundsOther[1]);
+		}
+		Vector2 minVThis = mmBoundsThis[0];
+		Vector2 maxVThis = mmBoundsThis[1];
+		Vector2 minVOther = mmBoundsOther[0];
+		Vector2 maxVOther = mmBoundsOther[1];
 		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x || maxVThis.x > minVOther.x && maxVThis.x < maxVOther.x;
 		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y || maxVThis.y > minVOther.y && maxVThis.y < maxVOther.y;
 		return thisXBetween && thisYBetween;
 	}
 
-	public bool IsTouching(Buildable buildable)
+	public bool IsTouching(Buildable buildable, float gridBlockSize)
 	{
 		//also in case a more transparent custom version is required:
-		List<Vector2> mmBoundsThis = MaxMinBounds();
-		List<Vector2> mmBoundsOther = buildable.MaxMinBounds();
-		Vector2 minVThis = mmBoundsThis[0] + Position;
-		Vector2 maxVThis = mmBoundsThis[1] + Position;
-		Vector2 minVOther = mmBoundsOther[0] + buildable.Position;
-		Vector2 maxVOther = mmBoundsOther[1] + buildable.Position;
+		List<Vector2> mmBoundsThis = MaxMinBounds(gridBlockSize);
+		List<Vector2> mmBoundsOther = buildable.MaxMinBounds(gridBlockSize);
+		Vector2 minVThis = mmBoundsThis[0];
+		Vector2 maxVThis = mmBoundsThis[1];
+		Vector2 minVOther = mmBoundsOther[0];
+		Vector2 maxVOther = mmBoundsOther[1];
 		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x || maxVThis.x > minVOther.x && maxVThis.x < maxVOther.x;
 		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y || maxVThis.y > minVOther.y && maxVThis.y < maxVOther.y;
 		bool equalX = maxVThis.x == minVOther.x || minVThis.x == maxVOther.x;
@@ -185,10 +193,12 @@ public class Buildable : Area2D
 		return normV1.x == -normV2.x && normV1.y == -normV2.y;
 	}
 
-	public List<Vector2> MaxMinBounds()
+	public List<Vector2> MaxMinBounds(float gridBlockSize)
 	{
-		float halfdimX = dimensions.x / 2f;
-		float halfdimY = dimensions.y / 2f;
+		BuildableEditor buildableEditor = (BuildableEditor)GetParent();
+		dimensions = buildableEditor._buildables_dimensions[buildableId];
+		float halfdimX = (gridBlockSize * dimensions.x) / 2f;
+		float halfdimY = (gridBlockSize * dimensions.y) / 2f;
 		Vector2 minV = new Vector2(Position.x - halfdimX, Position.y - halfdimY);
 		Vector2 maxV = new Vector2(Position.x + halfdimX, Position.y + halfdimY);
 		List<Vector2> mmList = new List<Vector2>();

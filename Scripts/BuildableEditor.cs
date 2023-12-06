@@ -203,7 +203,7 @@ public class BuildableEditor : Node2D
 			RemoveChild(_queued_buildable);
 			// _queued_buildable.Dispose();
 		}
-		AssignQueuedBuildable((Buildable)_buildables_dictionary[buildableId].Duplicate());
+		AssignQueuedBuildable(buildableId);
 		string texture_path_prefix = "top_down";
 		Buildable buildable = _buildables_dictionary[buildableId];
 		float rotation = _buildables_palette_rotations[paletteBlock];
@@ -411,14 +411,17 @@ public class BuildableEditor : Node2D
 
 	public void ProcessBuildableButtonPress(int buildableId)
 	{
-		AssignQueuedBuildable((Buildable)_buildables_dictionary[buildableId].Duplicate());
+		
 		AddChild(_queued_buildable);
+		_queued_buildable.dimensions = _buildables_dimensions[buildableId];
+		AssignQueuedBuildable(buildableId);
 	}
 
-	public void AssignQueuedBuildable(Buildable buildable)//assigns and sets opacity
+	public void AssignQueuedBuildable(int buildableId)//assigns and sets opacity
 	{
-		_queued_buildable = buildable;
+		_queued_buildable = (Buildable)_buildables_dictionary[buildableId].Duplicate();
 		_queued_buildable.SetTextureOpaque();
+		_queued_buildable.buildableId = buildableId;
 	}
 
 	public void UpdatePalette(int paletteBlock, int buildableId)
@@ -478,28 +481,44 @@ public class BuildableEditor : Node2D
 		// {
 		// 	GD.Print("buildable.GetOverlappingAreas().Count: ", buildable.GetOverlappingAreas().Count);
 		// }
+		if(_SOCKET_DEBUG)
+		{
+			GD.Print("checking valid placement.. ");
+		}
 		int bitmaskBuildable, bitmaskSceneBuildable = 0;
+		
 		
 		foreach(Node node in GetChildren())//if GetOverlapping Areas doesn't include lightly touching/adjacent but nonoverlap
 		{
 			if(node is Buildable sceneBuildable)
 			{
-				if(buildable.HasOverlap(sceneBuildable))
+				if(buildable.HasOverlap(sceneBuildable, _GRID_BLOCK_SIZE))
 				{
+					if(_SOCKET_DEBUG)
+					{
+						GD.Print("Found Bounds Overlap between: ", this.Name, this.GetInstanceId(), 
+							" and ", sceneBuildable.Name, sceneBuildable.GetInstanceId());
+					}
 					return false;//unless.. there is an allowed interaction layering.. see _BUILD_COLLISION_LAYER
 				}
-				if(buildable.IsTouching(sceneBuildable))//what about interior sockets?
+				if(buildable.IsTouching(sceneBuildable, _GRID_BLOCK_SIZE))//what about interior sockets?
 				{
+					if(_SOCKET_DEBUG)
+					{
+						GD.Print("Found Bounds Overlap between: ", this.Name, this.GetInstanceId(), 
+							" and ", sceneBuildable.Name, sceneBuildable.GetInstanceId());
+					}
 					if(buildable.HasMismatchedSockets(sceneBuildable) || !buildable.HasMatchingSocket(sceneBuildable))
 					{
+						GD.Print("WARNING: mismatch on sockets or lack of socket match found");
 						return false;
 					}
 					//check sockets
 				}
-				if(_SOCKET_DEBUG)
-				{
-					GD.Print("Checked buildable: ", sceneBuildable.Name, "\ninstance id: ", sceneBuildable.GetInstanceId());
-				}
+				// if(_SOCKET_DEBUG)
+				// {
+				// 	GD.Print("Checked buildable: ", sceneBuildable.Name, "\ninstance id: ", sceneBuildable.GetInstanceId());
+				// }
 			}
 		}
 		return buildable.GetOverlappingAreas().Count == 0;
