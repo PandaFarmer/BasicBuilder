@@ -211,7 +211,7 @@ public class BuildableEditor : Node2D
 		Texture texture = GD.Load<Texture>(texture_path);
 		// _queued_buildable.Rotation = ;
 		_queued_buildable.dimensions = _buildables_dimensions[buildableId];//sprite and socket dimensions..
-		_queued_buildable.SetTexture(texture, _GRID_BLOCK_SIZE);
+		_queued_buildable.SetTexture(texture);
 		// _queued_buildable.Scale = buildable.textureScale;
 		AddChild(_queued_buildable);
 		_queued_buildable.Position = _cursor_location;
@@ -490,6 +490,10 @@ public class BuildableEditor : Node2D
 		
 		foreach(Node node in GetChildren())//if GetOverlapping Areas doesn't include lightly touching/adjacent but nonoverlap
 		{
+			if(node == _queued_buildable)
+			{
+				continue;
+			}
 			if(node is Buildable sceneBuildable)
 			{
 				if(buildable.HasOverlap(sceneBuildable, _GRID_BLOCK_SIZE))

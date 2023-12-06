@@ -74,8 +74,9 @@ public class Buildable : Area2D
 		//if it is the 1st Buildable attached to buildablesRoot or has an adjacent Buildable that follows socket connection rules
 	}
 
-	public Vector2 TextureScaledDimensions(Texture texture, Vector2 dimensions, float gridBlockSize)
+	public Vector2 TextureScaledDimensions(Texture texture, Vector2 dimensions)
 	{
+		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
 		if (_DEBUG)
 		{
 			GD.Print("Found a texture with dims: ", new Vector2());
@@ -83,17 +84,17 @@ public class Buildable : Area2D
 		return new Vector2(gridBlockSize * (dimensions.x / texture.GetWidth()), gridBlockSize * (dimensions.y / texture.GetHeight()));
 	}
 
-	public void SetTexture(Texture texture, float gridBlockSize)
+	public void SetTexture(Texture texture)
 	{
 		// GetGlobalTransformWithCanvas
-
+		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
 		foreach (Node node in GetChildren())
 		{
 			if (node is Sprite sprite)
 			{
 				sprite.Texture = texture;
 				// sprite.GetGlobalTransformWithCanvas();//?
-				sprite.Scale = TextureScaledDimensions(texture, dimensions, gridBlockSize);
+				sprite.Scale = TextureScaledDimensions(texture, dimensions);
 				if (_DEBUG)
 				{
 					GD.Print("gridBlockSize: ", gridBlockSize);
@@ -105,8 +106,9 @@ public class Buildable : Area2D
 		}
 	}
 
-	public bool HasOverlap(Buildable buildable, float gridBlockSize)
+	public bool HasOverlap(Buildable buildable)
 	{
+		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
 		// return GetOverlappingAreas().Contains(buildable);
 		//in case a more transparent custom version is required:
 		List<Vector2> mmBoundsThis = MaxMinBounds(gridBlockSize);
@@ -125,8 +127,9 @@ public class Buildable : Area2D
 		return thisXBetween && thisYBetween;
 	}
 
-	public bool IsTouching(Buildable buildable, float gridBlockSize)
+	public bool IsTouching(Buildable buildable)
 	{
+		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
 		//also in case a more transparent custom version is required:
 		List<Vector2> mmBoundsThis = MaxMinBounds(gridBlockSize);
 		List<Vector2> mmBoundsOther = buildable.MaxMinBounds(gridBlockSize);
@@ -143,6 +146,14 @@ public class Buildable : Area2D
 
 	public bool HasMatchingSocket(Buildable buildable)
 	{
+		if(buildable == null)
+		{
+			if(_SOCKET_DEBUG)
+			{
+				GD.Print("WARNING: buildable being checked for matching socket is null!");
+			}
+			return false;
+		}
 		foreach (Vector2 socketCoord in socketConnectabilityMap.Keys)
 		{
 			foreach (Vector2 sceneSocketCoord in buildable.socketConnectabilityMap.Keys)
@@ -164,12 +175,20 @@ public class Buildable : Area2D
 
 	public bool HasMismatchedSockets(Buildable buildable)
 	{
+		if(buildable == null)
+		{
+			if(_SOCKET_DEBUG)
+			{
+				GD.Print("WARNING: buildable being checked for mismatched socket is null!");
+			}
+			return true;
+		}
 		foreach (Vector2 socketCoord in socketConnectabilityMap.Keys)
 		{
 			foreach (Vector2 sceneSocketCoord in buildable.socketConnectabilityMap.Keys)
 			{
 				// if (socketCoord + Position == sceneSocketCoord + buildable.Position)
-				if (OpposingSocketDirection(socketCoord, sceneSocketCoord))
+				if (OpposingSocketDirection(socketCoord, sceneSocketCoord) && )
 				{
 					if ((socketConnectabilityMap[socketCoord] & buildable.socketConnectabilityMap[sceneSocketCoord]) == 0)
 					{
@@ -193,9 +212,10 @@ public class Buildable : Area2D
 		return normV1.x == -normV2.x && normV1.y == -normV2.y;
 	}
 
-	public List<Vector2> MaxMinBounds(float gridBlockSize)
+	public List<Vector2> MaxMinBounds()
 	{
 		BuildableEditor buildableEditor = (BuildableEditor)GetParent();
+		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
 		dimensions = buildableEditor._buildables_dimensions[buildableId];
 		float halfdimX = (gridBlockSize * dimensions.x) / 2f;
 		float halfdimY = (gridBlockSize * dimensions.y) / 2f;
