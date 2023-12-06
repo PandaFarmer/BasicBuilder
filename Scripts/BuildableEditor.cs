@@ -496,7 +496,7 @@ public class BuildableEditor : Node2D
 			}
 			if(node is Buildable sceneBuildable)
 			{
-				if(buildable.HasOverlap(sceneBuildable, _GRID_BLOCK_SIZE))
+				if(buildable.HasOverlap(sceneBuildable))
 				{
 					if(_SOCKET_DEBUG)
 					{
@@ -505,7 +505,7 @@ public class BuildableEditor : Node2D
 					}
 					return false;//unless.. there is an allowed interaction layering.. see _BUILD_COLLISION_LAYER
 				}
-				if(buildable.IsTouching(sceneBuildable, _GRID_BLOCK_SIZE))//what about interior sockets?
+				if(buildable.IsTouching(sceneBuildable))//what about interior sockets?
 				{
 					if(_SOCKET_DEBUG)
 					{

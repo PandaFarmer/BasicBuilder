@@ -111,8 +111,8 @@ public class Buildable : Area2D
 		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
 		// return GetOverlappingAreas().Contains(buildable);
 		//in case a more transparent custom version is required:
-		List<Vector2> mmBoundsThis = MaxMinBounds(gridBlockSize);
-		List<Vector2> mmBoundsOther = buildable.MaxMinBounds(gridBlockSize);
+		List<Vector2> mmBoundsThis = MaxMinBounds();
+		List<Vector2> mmBoundsOther = buildable.MaxMinBounds();
 		if (_SOCKET_DEBUG)
 		{
 			GD.Print("mmBoundsThis: ", mmBoundsThis[0], ", ", mmBoundsThis[1]);
@@ -131,8 +131,8 @@ public class Buildable : Area2D
 	{
 		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
 		//also in case a more transparent custom version is required:
-		List<Vector2> mmBoundsThis = MaxMinBounds(gridBlockSize);
-		List<Vector2> mmBoundsOther = buildable.MaxMinBounds(gridBlockSize);
+		List<Vector2> mmBoundsThis = MaxMinBounds();
+		List<Vector2> mmBoundsOther = buildable.MaxMinBounds();
 		Vector2 minVThis = mmBoundsThis[0];
 		Vector2 maxVThis = mmBoundsThis[1];
 		Vector2 minVOther = mmBoundsOther[0];
