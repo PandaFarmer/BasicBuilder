@@ -500,15 +500,7 @@ public class BuildableEditor : Node2D
 			}
 			if (node is Buildable sceneBuildable)
 			{
-				if (buildable.HasOverlap(sceneBuildable))
-				{
-					if (_SOCKET_DEBUG)
-					{
-						GD.Print("Found Bounds Overlap between: ", this.Name, this.GetInstanceId(),
-							" and ", sceneBuildable.Name, sceneBuildable.GetInstanceId());
-					}
-					return false;//unless.. there is an allowed interaction layering.. see _BUILD_COLLISION_LAYER
-				}
+				
 				if (buildable.IsTouching(sceneBuildable))//what about interior sockets?
 				{
 					if (_SOCKET_DEBUG)
@@ -524,12 +516,21 @@ public class BuildableEditor : Node2D
 						}
 						continue;
 					}
-					if (buildable.HasAllRequiredSockets(sceneBuildable) || !buildable.HasMismatchedSockets(sceneBuildable))
+					if (!buildable.HasAllRequiredSockets(sceneBuildable) || buildable.HasMismatchedSockets(sceneBuildable))
 					{
 						GD.Print("WARNING: mismatch on sockets or lack of socket match found");
 						return false;
 					}
 					//check sockets
+				}
+				else if (buildable.HasOverlap(sceneBuildable))
+				{
+					if (_SOCKET_DEBUG)
+					{
+						GD.Print("Found Bounds Overlap between: ", this.Name, this.GetInstanceId(),
+							" and ", sceneBuildable.Name, sceneBuildable.GetInstanceId());
+					}
+					return false;//unless.. there is an allowed interaction layering.. see _BUILD_COLLISION_LAYER
 				}
 				// if(_SOCKET_DEBUG)
 				// {

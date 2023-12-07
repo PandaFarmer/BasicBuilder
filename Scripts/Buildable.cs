@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 public class Buildable : Area2D
 {
-	public bool _DEBUG = true;
-	public bool _SOCKET_DEBUG = true;
+	public bool _DEBUG = false;
+	public bool _SOCKET_DEBUG = false;
 	public static uint _BUILD_COLLISION_LAYER = 1234;
 	// public static string _BUILD_GROUP = "BUILD_GROUP";
 	public int buildableId;
@@ -120,7 +120,8 @@ public class Buildable : Area2D
 		Vector2 maxVThis = mmBoundsThis[1];
 		Vector2 minVOther = mmBoundsOther[0];
 		Vector2 maxVOther = mmBoundsOther[1];
-		return !(maxVThis.x < minVOther.x || maxVThis.y < minVOther.y || minVThis.x > maxVOther.x || minVThis.y > maxVOther.y);
+		return !(maxVThis.x <= minVOther.x || maxVThis.y <= minVOther.y || minVThis.x >= maxVOther.x || minVThis.y >= maxVOther.y);
+
 	}
 
 	public bool IsTouching(Buildable buildable)
@@ -133,11 +134,11 @@ public class Buildable : Area2D
 		Vector2 maxVThis = mmBoundsThis[1];
 		Vector2 minVOther = mmBoundsOther[0];
 		Vector2 maxVOther = mmBoundsOther[1];
-		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x || maxVThis.x > minVOther.x && maxVThis.x < maxVOther.x;
-		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y || maxVThis.y > minVOther.y && maxVThis.y < maxVOther.y;
-		bool equalX = maxVThis.x == minVOther.x || minVThis.x == maxVOther.x;
-		bool equalY = maxVThis.y == minVOther.y || minVThis.y == maxVOther.y;
-		return (thisXBetween && equalY) || (thisYBetween && equalX);
+		bool hasXequal = maxVThis.x == minVOther.x || minVThis.x == maxVOther.x;
+		bool hasYequal = maxVThis.y == minVOther.y || minVThis.y == maxVOther.y;
+		bool isCorner = hasXequal && hasYequal;
+		if(isCorner) return false;
+		return !(maxVThis.x < minVOther.x || maxVThis.y < minVOther.y || minVThis.x > maxVOther.x || minVThis.y > maxVOther.y);
 	}
 
 	public Dictionary<Vector2, int> SocketConnectabilityMap()
