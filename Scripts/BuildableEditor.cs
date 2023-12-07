@@ -500,30 +500,15 @@ public class BuildableEditor : Node2D
 			}
 			if (node is Buildable sceneBuildable)
 			{
-				
-				if (buildable.IsTouching(sceneBuildable))//what about interior sockets?
+				if (buildable == null || sceneBuildable == null)
 				{
 					if (_SOCKET_DEBUG)
 					{
-						GD.Print("Found Bounds Overlap between: ", this.Name, this.GetInstanceId(),
-							" and ", sceneBuildable.Name, sceneBuildable.GetInstanceId());
+						GD.Print("WARNING: either buildable or scenenBuildable was null..");
 					}
-					if (buildable == null || sceneBuildable == null)
-					{
-						if (_SOCKET_DEBUG)
-						{
-							GD.Print("WARNING: either buildable or scenenBuildable was null..");
-						}
-						continue;
-					}
-					if (!buildable.HasAllRequiredSockets(sceneBuildable) || buildable.HasMismatchedSockets(sceneBuildable))
-					{
-						GD.Print("WARNING: mismatch on sockets or lack of socket match found");
-						return false;
-					}
-					//check sockets
+					continue;
 				}
-				else if (buildable.HasOverlap(sceneBuildable))
+				if (buildable.HasOverlap(sceneBuildable))
 				{
 					if (_SOCKET_DEBUG)
 					{
@@ -531,6 +516,27 @@ public class BuildableEditor : Node2D
 							" and ", sceneBuildable.Name, sceneBuildable.GetInstanceId());
 					}
 					return false;//unless.. there is an allowed interaction layering.. see _BUILD_COLLISION_LAYER
+				}
+				if (buildable.IsTouching(sceneBuildable))//what about interior sockets?
+				{
+					if (_SOCKET_DEBUG)
+					{
+						GD.Print("Found Bounds Touching between: ", this.Name, this.GetInstanceId(),
+							" and ", sceneBuildable.Name, sceneBuildable.GetInstanceId());
+					}
+
+					//check sockets
+					// if (!buildable.HasAllRequiredSockets(sceneBuildable))
+					// {
+					// 	GD.Print("WARNING: not all REQUIRED sockets attached on placement");
+					// 	return false;
+					// }
+					if (buildable.HasMismatchedSockets(sceneBuildable))
+					{
+						GD.Print("WARNING: mismatch on sockets");
+						return false;
+					}
+
 				}
 				// if(_SOCKET_DEBUG)
 				// {

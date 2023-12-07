@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class Buildable : Area2D
 {
 	public bool _DEBUG = false;
-	public bool _SOCKET_DEBUG = false;
+	public bool _SOCKET_DEBUG = true;
 	public static uint _BUILD_COLLISION_LAYER = 1234;
 	// public static string _BUILD_GROUP = "BUILD_GROUP";
 	public int buildableId;
@@ -178,6 +178,7 @@ public class Buildable : Area2D
 
 	public bool HasAllRequiredSockets(Buildable buildable)
 	{
+		//requirement bitmask may be 0->optional, 1->at least1, 2-> at most 1 ??
 		Dictionary<Vector2, int> socketRequirementMap = SocketRequirementMap();
 		Dictionary<Vector2, int> sceneSocketRequirementMap = buildable.SocketRequirementMap();
 		
@@ -212,8 +213,8 @@ public class Buildable : Area2D
 
 	public bool HasMismatchedSockets(Buildable buildable)
 	{
-		Dictionary<Vector2, int> socketRequirementMap = SocketRequirementMap();
-		Dictionary<Vector2, int> sceneSocketRequirementMap = buildable.SocketRequirementMap();
+		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap();
+		Dictionary<Vector2, int> sceneSocketConnectabilityMap = buildable.SocketConnectabilityMap();
 		
 		if(buildable == null)
 		{
@@ -223,23 +224,27 @@ public class Buildable : Area2D
 			}
 			return true;
 		}
-		foreach (Vector2 socketCoord in socketRequirementMap.Keys)
+		foreach (Vector2 socketCoord in socketConnectabilityMap.Keys)
 		{
-			foreach (Vector2 sceneSocketCoord in sceneSocketRequirementMap.Keys)
+			foreach (Vector2 sceneSocketCoord in sceneSocketConnectabilityMap.Keys)
 			{
 				// if (socketCoord + Position == sceneSocketCoord + buildable.Position)
 				if (OpposingSocketDirection(socketCoord, sceneSocketCoord) && 
 					MatchingSocketLocation(this, buildable, socketCoord, sceneSocketCoord) &&
 					MatchingSockets(this, buildable, socketCoord, sceneSocketCoord))
 				{
-					if ((socketRequirementMap[socketCoord] & sceneSocketRequirementMap[sceneSocketCoord]) == 0)
+					if(_SOCKET_DEBUG)
 					{
-						return false;
+						GD.Print("Found Matching Sockets on: \n", socketCoord.ToString(), "\n", sceneSocketCoord.ToString());
+					}
+					if ((socketConnectabilityMap[socketCoord] & sceneSocketConnectabilityMap[sceneSocketCoord]) == 0)
+					{
+						return true;//should cause NOTVALID
 					}
 				}
 			}
 		}
-		return true;
+		return false;
 	}
 
 	public bool MatchingSockets(Buildable b1, Buildable b2, Vector2 v1, Vector2 v2)
@@ -260,7 +265,7 @@ public class Buildable : Area2D
 	{
 		Vector2 normV1 = v1.Normalized();
 		Vector2 normV2 = v2.Normalized();
-		return normV1.x == -normV2.x && normV1.y == -normV2.y;
+		return normV1 == -normV2;
 	}
 
 	public List<Vector2> MaxMinBounds()
