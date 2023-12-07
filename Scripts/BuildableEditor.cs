@@ -65,6 +65,8 @@ public class BuildableEditor : Node2D
 	public Dictionary<int, float> _buildables_palette_rotations;
 	public Dictionary<int, Vector2> _buildables_dimensions;//sprite and socket dimensions..
 	public Dictionary<int, Vector2> _buildables_texture_scales;
+	public Dictionary<int, Dictionary<Vector2, int>> _buildables_socketConnectabilityMap;
+	public Dictionary<int, Dictionary<Vector2, int>> _buildables_socketRequirementMap;
 
 	public Buildable _queued_buildable;
 
@@ -92,9 +94,11 @@ public class BuildableEditor : Node2D
 		_buildables_palette_rotations = new Dictionary<int, float>();
 		_buildables_dimensions = new Dictionary<int, Vector2>();
 		_buildables_texture_scales = new Dictionary<int, Vector2>();
+		_buildables_socketConnectabilityMap = new Dictionary<int, Dictionary<Vector2, int>>();
+		_buildables_socketRequirementMap = new Dictionary<int, Dictionary<Vector2, int>>();
 
 		_palette_container = (Panel)FindNode("PanelPalette");
-		
+
 
 		SetToSelectionMode();
 		_buildablesRoot = new Node2D();
@@ -110,15 +114,15 @@ public class BuildableEditor : Node2D
 		{
 
 			_cursorLocation = eventMouseMotion.Position;
-			if(_SCREEN_DEBUG && _in_selection_mode)
+			if (_SCREEN_DEBUG && _in_selection_mode)
 			{
 				GD.Print("new selection mode _cursorLocation: ", _cursorLocation);
 			}
-			if(!_in_menu_mode && _queued_buildable != null)
+			if (!_in_menu_mode && _queued_buildable != null)
 			{
 				_cursor_location = SnapToGrid(_cursorLocation);
 				_queued_buildable.Position = _cursor_location;
-				if(ValidPlacement(_queued_buildable))
+				if (ValidPlacement(_queued_buildable))
 				{
 					_queued_buildable.SetTextureOpaque();
 				}
@@ -158,20 +162,20 @@ public class BuildableEditor : Node2D
 			if (_in_menu_mode)
 			{
 				int hovered_buildableId = HoveredBuildableId();
-				if(_DEBUG)
+				if (_DEBUG)
 				{
 					GD.Print("keypress in menu mode detected");
 					GD.Print("Hovered buildable id: ", hovered_buildableId);
-					if(hovered_buildableId == -1)
+					if (hovered_buildableId == -1)
 						GD.Print("WARNING: no hovered buildable found");
 				}
-				
+
 				//Buildable hovered_buildable = _buildables_dictionary[_buildableId].Duplicate();
-				if(Input.IsActionPressed("ui_1"))
+				if (Input.IsActionPressed("ui_1"))
 					UpdatePalette(1, hovered_buildableId);
-				if(Input.IsActionPressed("ui_2"))
+				if (Input.IsActionPressed("ui_2"))
 					UpdatePalette(2, hovered_buildableId);
-				if(Input.IsActionPressed("ui_3"))
+				if (Input.IsActionPressed("ui_3"))
 					UpdatePalette(3, hovered_buildableId);
 			}
 			if (_in_build_mode)//update _queued_buildable
@@ -198,7 +202,7 @@ public class BuildableEditor : Node2D
 	{
 		int buildableId = _buildables_palette[paletteBlock];
 		// RemoveChild(_queued_buildable);
-		if(_queued_buildable != null)
+		if (_queued_buildable != null)
 		{
 			RemoveChild(_queued_buildable);
 			// _queued_buildable.Dispose();
@@ -219,9 +223,9 @@ public class BuildableEditor : Node2D
 
 	public void SetPaletteButtons()//might not need this?
 	{
-		foreach(Node node in _palette_container.GetChildren())
+		foreach (Node node in _palette_container.GetChildren())
 		{
-			if(node is BuildableButton buildableButton)
+			if (node is BuildableButton buildableButton)
 			{
 				buildableButton.isPaletteItem = true;
 			}
@@ -231,10 +235,10 @@ public class BuildableEditor : Node2D
 	public int HoveredBuildableId()
 	{
 		ScrollContainer scrollContainer = (ScrollContainer)_menu_container.GetCurrentTabControl();
-		
-		foreach(Node node in scrollContainer.GetChildren())
+
+		foreach (Node node in scrollContainer.GetChildren())
 		{
-			if(node is MenuGridContainer menuGridContainer)
+			if (node is MenuGridContainer menuGridContainer)
 			{
 				return menuGridContainer.HoveredBuildableId();
 			}
@@ -269,12 +273,12 @@ public class BuildableEditor : Node2D
 
 		foreach (BuildableInfo buildableInfo in buildableInfoListWrapper.buildableInfos)
 		{
-			
+
 			var buildableScene = GD.Load<PackedScene>("res://Buildable.tscn"); // Will load when the script is instanced.
 			buildable = (Buildable)buildableScene.Instance();
 
 			buildable.dimensions = new Vector2(buildableInfo.dimension_x, buildableInfo.dimension_y);
-			if(_DEBUG)
+			if (_DEBUG)
 			{
 				GD.Print("buildable with dimensions: ", buildable.dimensions);
 			}
@@ -288,8 +292,8 @@ public class BuildableEditor : Node2D
 				socketConnectabilityMap[new Vector2(vector2Info.x_value, vector2Info.y_value)] = vector2Info.sockettype_bit_mask;
 				socketRequirementMap[new Vector2(vector2Info.x_value, vector2Info.y_value)] = vector2Info.requirement_bit_mask;
 			}
-			buildable.socketConnectabilityMap = socketConnectabilityMap;
-			buildable.socketRequirementMap = socketRequirementMap;
+			_buildables_socketConnectabilityMap[buildableInfo.buildable_id] = socketConnectabilityMap;
+			_buildables_socketRequirementMap[buildableInfo.buildable_id] = socketRequirementMap;
 
 			texture_path = String.Format("res://{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, small_texture_path_suffix);
 			small_texture = GD.Load<Texture>(texture_path);
@@ -318,9 +322,9 @@ public class BuildableEditor : Node2D
 	{
 		var menuScene = GD.Load<PackedScene>("res://Menu.tscn"); // Will load when the script is instanced.
 		_menu_container = (MenuContainer)menuScene.Instance();
-		foreach(Node node in GetChildren())
+		foreach (Node node in GetChildren())
 		{
-			if(node.Name == "MenuCanvasLayer")
+			if (node.Name == "MenuCanvasLayer")
 			{
 				node.AddChild(_menu_container);
 				break;
@@ -368,7 +372,7 @@ public class BuildableEditor : Node2D
 
 	public void EnableMenu()
 	{
-		if(_DEBUG)
+		if (_DEBUG)
 		{
 			GD.Print("Setting to Menu mode and Enabling Menu");
 		}
@@ -382,7 +386,7 @@ public class BuildableEditor : Node2D
 
 	public void SetToBuildMode()
 	{
-		if(_DEBUG)
+		if (_DEBUG)
 		{
 			GD.Print("Setting to Build mode and Disabling Menu");
 		}
@@ -411,7 +415,7 @@ public class BuildableEditor : Node2D
 
 	public void ProcessBuildableButtonPress(int buildableId)
 	{
-		
+
 		AddChild(_queued_buildable);
 		_queued_buildable.dimensions = _buildables_dimensions[buildableId];
 		AssignQueuedBuildable(buildableId);
@@ -430,18 +434,18 @@ public class BuildableEditor : Node2D
 		_buildables_palette_rotations[paletteBlock] = 0;
 
 
-		foreach(Node node in _palette_container.GetChildren())
+		foreach (Node node in _palette_container.GetChildren())
 		{
-			if(node is BuildableButton buildableButton)
+			if (node is BuildableButton buildableButton)
 			{
-				if(_DEBUG)
+				if (_DEBUG)
 				{
 					GD.Print("Panel palette has child with name: ", buildableButton.Name);
 				}
 				int buttonPaletteIndex = (int)Char.GetNumericValue(buildableButton.Name[buildableButton.Name.Length - 1]);
-				if(buttonPaletteIndex == paletteBlock)
+				if (buttonPaletteIndex == paletteBlock)
 				{
-					if(_DEBUG)
+					if (_DEBUG)
 					{
 						GD.Print("Found matching paletteBlock: ", paletteBlock, "\n with buildableId: ", buildableId);
 					}
@@ -481,38 +485,46 @@ public class BuildableEditor : Node2D
 		// {
 		// 	GD.Print("buildable.GetOverlappingAreas().Count: ", buildable.GetOverlappingAreas().Count);
 		// }
-		if(_SOCKET_DEBUG)
+		if (_SOCKET_DEBUG)
 		{
 			GD.Print("checking valid placement.. ");
 		}
 		int bitmaskBuildable, bitmaskSceneBuildable = 0;
-		
-		
-		foreach(Node node in GetChildren())//if GetOverlapping Areas doesn't include lightly touching/adjacent but nonoverlap
+
+
+		foreach (Node node in GetChildren())//if GetOverlapping Areas doesn't include lightly touching/adjacent but nonoverlap
 		{
-			if(node == _queued_buildable)
+			if (node.GetInstanceId() == _queued_buildable.GetInstanceId())
 			{
 				continue;
 			}
-			if(node is Buildable sceneBuildable)
+			if (node is Buildable sceneBuildable)
 			{
-				if(buildable.HasOverlap(sceneBuildable))
+				if (buildable.HasOverlap(sceneBuildable))
 				{
-					if(_SOCKET_DEBUG)
+					if (_SOCKET_DEBUG)
 					{
-						GD.Print("Found Bounds Overlap between: ", this.Name, this.GetInstanceId(), 
+						GD.Print("Found Bounds Overlap between: ", this.Name, this.GetInstanceId(),
 							" and ", sceneBuildable.Name, sceneBuildable.GetInstanceId());
 					}
 					return false;//unless.. there is an allowed interaction layering.. see _BUILD_COLLISION_LAYER
 				}
-				if(buildable.IsTouching(sceneBuildable))//what about interior sockets?
+				if (buildable.IsTouching(sceneBuildable))//what about interior sockets?
 				{
-					if(_SOCKET_DEBUG)
+					if (_SOCKET_DEBUG)
 					{
-						GD.Print("Found Bounds Overlap between: ", this.Name, this.GetInstanceId(), 
+						GD.Print("Found Bounds Overlap between: ", this.Name, this.GetInstanceId(),
 							" and ", sceneBuildable.Name, sceneBuildable.GetInstanceId());
 					}
-					if(buildable.HasMismatchedSockets(sceneBuildable) || !buildable.HasMatchingSocket(sceneBuildable))
+					if (buildable == null || sceneBuildable == null)
+					{
+						if (_SOCKET_DEBUG)
+						{
+							GD.Print("WARNING: either buildable or scenenBuildable was null..");
+						}
+						continue;
+					}
+					if (buildable.HasAllRequiredSockets(sceneBuildable) || !buildable.HasMismatchedSockets(sceneBuildable))
 					{
 						GD.Print("WARNING: mismatch on sockets or lack of socket match found");
 						return false;

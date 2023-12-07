@@ -20,8 +20,6 @@ public class Buildable : Area2D
 	public string buildablePathName;
 	public Vector2 dimensions;
 	
-	public Dictionary<Vector2, int> socketConnectabilityMap;
-	public Dictionary<Vector2, int> socketRequirementMap;
 	public Dictionary<Vector2, Buildable> attachedBuildables;
 
 	// public bool isIsometric;
@@ -122,9 +120,7 @@ public class Buildable : Area2D
 		Vector2 maxVThis = mmBoundsThis[1];
 		Vector2 minVOther = mmBoundsOther[0];
 		Vector2 maxVOther = mmBoundsOther[1];
-		bool thisXBetween = minVThis.x > minVOther.x && minVThis.x < maxVOther.x || maxVThis.x > minVOther.x && maxVThis.x < maxVOther.x;
-		bool thisYBetween = minVThis.y > minVOther.y && minVThis.y < maxVOther.y || maxVThis.y > minVOther.y && maxVThis.y < maxVOther.y;
-		return thisXBetween && thisYBetween;
+		return !(maxVThis.x < minVOther.x || maxVThis.y < minVOther.y || minVThis.x > maxVOther.x || minVThis.y > maxVOther.y);
 	}
 
 	public bool IsTouching(Buildable buildable)
@@ -144,8 +140,20 @@ public class Buildable : Area2D
 		return (thisXBetween && equalY) || (thisYBetween && equalX);
 	}
 
+	public Dictionary<Vector2, int> SocketConnectabilityMap()
+	{
+		return ((BuildableEditor)GetParent())._buildables_socketConnectabilityMap[buildableId];
+	}
+
+	public Dictionary<Vector2, int> SocketRequirementMap()
+	{
+		return ((BuildableEditor)GetParent())._buildables_socketRequirementMap[buildableId];
+	}
+
 	public bool HasMatchingSocket(Buildable buildable)
 	{
+		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap();
+		Dictionary<Vector2, int> sceneSocketConnectabilityMap = buildable.SocketConnectabilityMap();
 		if(buildable == null)
 		{
 			if(_SOCKET_DEBUG)
@@ -156,7 +164,7 @@ public class Buildable : Area2D
 		}
 		foreach (Vector2 socketCoord in socketConnectabilityMap.Keys)
 		{
-			foreach (Vector2 sceneSocketCoord in buildable.socketConnectabilityMap.Keys)
+			foreach (Vector2 sceneSocketCoord in sceneSocketConnectabilityMap.Keys)
 			{
 				if (MatchingSocketLocation(this, buildable, socketCoord, sceneSocketCoord))
 				{
@@ -167,14 +175,45 @@ public class Buildable : Area2D
 		return false;
 	}
 
-	// public bool HasAllMatchingSockets(Buildable buildable)
-	// {
-
-	// }
+	public bool HasAllRequiredSockets(Buildable buildable)
+	{
+		Dictionary<Vector2, int> socketRequirementMap = SocketRequirementMap();
+		Dictionary<Vector2, int> sceneSocketRequirementMap = buildable.SocketRequirementMap();
+		
+		if(buildable == null || socketRequirementMap == null)
+		{
+			if(_SOCKET_DEBUG)
+			{
+				GD.Print("WARNING: other buildable, socketRequirementMap, or socketConnectabilityMap is uninitialized");
+			}
+			return false;
+		}
+		bool hasRequiredSocket;
+		foreach (Vector2 socketCoord in socketRequirementMap.Keys)
+		{
+			hasRequiredSocket = false;
+			foreach (Vector2 sceneSocketCoord in sceneSocketRequirementMap.Keys)
+			{
+				if (MatchingSocketLocation(this, buildable, socketCoord, sceneSocketCoord))
+				{
+					hasRequiredSocket = true;
+					break;
+				}
+			}
+			if(!hasRequiredSocket)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 
 
 	public bool HasMismatchedSockets(Buildable buildable)
 	{
+		Dictionary<Vector2, int> socketRequirementMap = SocketRequirementMap();
+		Dictionary<Vector2, int> sceneSocketRequirementMap = buildable.SocketRequirementMap();
+		
 		if(buildable == null)
 		{
 			if(_SOCKET_DEBUG)
@@ -183,15 +222,16 @@ public class Buildable : Area2D
 			}
 			return true;
 		}
-		foreach (Vector2 socketCoord in socketConnectabilityMap.Keys)
+		foreach (Vector2 socketCoord in socketRequirementMap.Keys)
 		{
-			foreach (Vector2 sceneSocketCoord in buildable.socketConnectabilityMap.Keys)
+			foreach (Vector2 sceneSocketCoord in sceneSocketRequirementMap.Keys)
 			{
 				// if (socketCoord + Position == sceneSocketCoord + buildable.Position)
 				if (OpposingSocketDirection(socketCoord, sceneSocketCoord) && 
-					MatchingSocketLocation(this, buildable, socketCoord, sceneSocketCoord))
+					MatchingSocketLocation(this, buildable, socketCoord, sceneSocketCoord) &&
+					MatchingSockets(this, buildable, socketCoord, sceneSocketCoord))
 				{
-					if ((socketConnectabilityMap[socketCoord] & buildable.socketConnectabilityMap[sceneSocketCoord]) == 0)
+					if ((socketRequirementMap[socketCoord] & sceneSocketRequirementMap[sceneSocketCoord]) == 0)
 					{
 						return false;
 					}
@@ -201,8 +241,16 @@ public class Buildable : Area2D
 		return true;
 	}
 
+	public bool MatchingSockets(Buildable b1, Buildable b2, Vector2 v1, Vector2 v2)
+	{
+		int sockettype_bit_mask1 = b1.SocketConnectabilityMap()[v1];
+		int sockettype_bit_mask2 = b2.SocketConnectabilityMap()[v2];
+		return (sockettype_bit_mask1&sockettype_bit_mask2) != 0;
+	}
+
 	public bool MatchingSocketLocation(Buildable b1, Buildable b2, Vector2 v1, Vector2 v2)
 	{
+		
 		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
 		return b1.Position + v1*gridBlockSize == b2.Position + v2*gridBlockSize;
 	}
