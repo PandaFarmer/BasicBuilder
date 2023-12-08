@@ -75,14 +75,13 @@ public class BuildableEditor : Node2D
 	public MenuContainer _menu_container;
 	public Panel _palette_container;
 
-	public static float _GRID_BLOCK_SIZE = 100;
+	public static float _GRID_BLOCK_SIZE = 40;
 	public Vector2 _GRID_ORIGIN;
 
 	public bool _in_build_mode;
 	public bool _in_menu_mode;
 	public bool _in_selection_mode;
 	public Node2D _buildablesRoot;
-
 	public Vector2 _cursor_location;
 
 	public override void _Ready()
