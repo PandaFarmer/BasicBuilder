@@ -42,6 +42,7 @@ public class Buildable : Area2D
 				return;
 			}
 		}
+		attachedBuildables = new Dictionary<Vector2, Buildable>();
 		ZIndex = -1;
 	}
 
