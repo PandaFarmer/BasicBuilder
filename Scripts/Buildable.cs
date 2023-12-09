@@ -151,7 +151,7 @@ public class Buildable : Area2D
 		return ((BuildableEditor)GetParent())._buildables_socketRequirementMap[buildableId];
 	}
 
-	public bool HasMatchingSocket(Buildable buildable)
+	public Vector2 MatchingSocket(Buildable buildable)
 	{
 		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap();
 		Dictionary<Vector2, int> sceneSocketConnectabilityMap = buildable.SocketConnectabilityMap();
@@ -161,7 +161,7 @@ public class Buildable : Area2D
 			{
 				GD.Print("WARNING: buildable being checked for matching socket is null!");
 			}
-			return false;
+			return Vector2.Zero;
 		}
 		foreach (Vector2 socketCoord in socketConnectabilityMap.Keys)
 		{
@@ -169,11 +169,11 @@ public class Buildable : Area2D
 			{
 				if (MatchingSocketLocation(this, buildable, socketCoord, sceneSocketCoord))
 				{
-					return true;
+					return socketCoord;
 				}
 			}
 		}
-		return false;
+		return Vector2.Zero;
 	}
 
 	public bool HasAllRequiredSockets(Buildable buildable)
@@ -295,5 +295,45 @@ public class Buildable : Area2D
 	public void SetTextureHueRed()
 	{
 		Modulate = new Color(1f, .2f, .2f, .5f);
+	}
+
+	public bool BuildableHasConnection(int socketType, Buildable buildable)
+	{
+		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap();
+		List<Buildable> traversedBuildables = new List<Buildable>();
+		Queue<KeyValuePair<Vector2, Buildable>> buildableSearchQueue = new Queue<KeyValuePair<Vector2, Buildable>>();
+		foreach(KeyValuePair<Vector2, Buildable> _kvp in attachedBuildables)
+		{
+			buildableSearchQueue.Enqueue(_kvp);
+		}
+		KeyValuePair<Vector2, Buildable> kvp;
+		////Vector2 searchSocketLocalPos = kvp.Key;
+		////Buildable searchBuildable = kvp.Value;
+		while(buildableSearchQueue.Count > 0)
+		{
+			kvp = buildableSearchQueue.Dequeue();
+			if(kvp.Value == null)
+			{
+				attachedBuildables.Remove(kvp.Key);
+				continue;
+			}
+			else if((socketType & socketConnectabilityMap[kvp.Key]) == 0)
+			{
+				traversedBuildables.Add(kvp.Value);
+				continue;
+			}
+			else if(kvp.Value == buildable)
+			{
+				return true;
+			}
+			else if(!traversedBuildables.Contains(kvp.Value))
+			{
+				foreach(KeyValuePair<Vector2, Buildable> b_kvp in kvp.Value.attachedBuildables)
+				{
+					buildableSearchQueue.Enqueue(b_kvp);
+				}
+			}
+		}
+		return false;
 	}
 }

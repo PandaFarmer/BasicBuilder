@@ -141,9 +141,8 @@ public class BuildableEditor : Node2D
 			{
 				if (ValidPlacement(_queued_buildable))
 				{
-					Buildable placementBuildable = (Buildable)_queued_buildable.Duplicate();
-					placementBuildable.SetTextureHueNeutral();
-					AddChild(placementBuildable);
+					PlaceQueuedBuildable();
+
 				}
 				//add code for invalid placement
 			}
@@ -195,6 +194,28 @@ public class BuildableEditor : Node2D
 	public override void _PhysicsProcess(float Delta)
 	{
 
+	}
+
+	public void PlaceQueuedBuildable()
+	{
+		Buildable placementBuildable = (Buildable)_queued_buildable.Duplicate();
+		placementBuildable.SetTextureHueNeutral();
+		AddChild(placementBuildable);
+		Vector2 attachmentSocket;
+		foreach (Node node in GetChildren())
+		{
+			if (node is Buildable buildable &&
+				buildable != placementBuildable && 
+				buildable != _queued_buildable &&
+				placementBuildable.IsTouching(buildable))
+			{
+				attachmentSocket = placementBuildable.MatchingSocket(buildable);
+				if (Vector2.Zero != attachmentSocket)
+				{
+					placementBuildable.attachedBuildables[attachmentSocket] = buildable;//need to consider deletion..
+				}
+			}
+		}
 	}
 
 	public void AssignQueuedBuildableFromPalette(int paletteBlock)
