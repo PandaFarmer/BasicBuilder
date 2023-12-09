@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 // using System.Numerics;
 
 public class Buildable : Area2D
@@ -19,7 +20,7 @@ public class Buildable : Area2D
 	public string buildableName;
 	public string buildablePathName;
 	public Vector2 dimensions;
-	
+
 	public Dictionary<Vector2, Buildable> attachedBuildables;
 
 	// public bool isIsometric;
@@ -137,7 +138,7 @@ public class Buildable : Area2D
 		bool hasXequal = maxVThis.x == minVOther.x || minVThis.x == maxVOther.x;
 		bool hasYequal = maxVThis.y == minVOther.y || minVThis.y == maxVOther.y;
 		bool isCorner = hasXequal && hasYequal;
-		if(isCorner) return false;
+		if (isCorner) return false;
 		return !(maxVThis.x < minVOther.x || maxVThis.y < minVOther.y || minVThis.x > maxVOther.x || minVThis.y > maxVOther.y);
 	}
 
@@ -155,9 +156,9 @@ public class Buildable : Area2D
 	{
 		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap();
 		Dictionary<Vector2, int> sceneSocketConnectabilityMap = buildable.SocketConnectabilityMap();
-		if(buildable == null)
+		if (buildable == null)
 		{
-			if(_SOCKET_DEBUG)
+			if (_SOCKET_DEBUG)
 			{
 				GD.Print("WARNING: buildable being checked for matching socket is null!");
 			}
@@ -181,10 +182,10 @@ public class Buildable : Area2D
 		//requirement bitmask may be 0->optional, 1->at least1, 2-> at most 1 ??
 		Dictionary<Vector2, int> socketRequirementMap = SocketRequirementMap();
 		Dictionary<Vector2, int> sceneSocketRequirementMap = buildable.SocketRequirementMap();
-		
-		if(buildable == null || socketRequirementMap == null)
+
+		if (buildable == null || socketRequirementMap == null)
 		{
-			if(_SOCKET_DEBUG)
+			if (_SOCKET_DEBUG)
 			{
 				GD.Print("WARNING: other buildable, socketRequirementMap, or socketConnectabilityMap is uninitialized");
 			}
@@ -202,7 +203,7 @@ public class Buildable : Area2D
 					break;
 				}
 			}
-			if(!hasRequiredSocket)
+			if (!hasRequiredSocket)
 			{
 				return false;
 			}
@@ -215,10 +216,10 @@ public class Buildable : Area2D
 	{
 		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap();
 		Dictionary<Vector2, int> sceneSocketConnectabilityMap = buildable.SocketConnectabilityMap();
-		
-		if(buildable == null)
+
+		if (buildable == null)
 		{
-			if(_SOCKET_DEBUG)
+			if (_SOCKET_DEBUG)
 			{
 				GD.Print("WARNING: buildable being checked for mismatched socket is null!");
 			}
@@ -229,11 +230,11 @@ public class Buildable : Area2D
 			foreach (Vector2 sceneSocketCoord in sceneSocketConnectabilityMap.Keys)
 			{
 				// if (socketCoord + Position == sceneSocketCoord + buildable.Position)
-				if (OpposingSocketDirection(socketCoord, sceneSocketCoord) && 
+				if (OpposingSocketDirection(socketCoord, sceneSocketCoord) &&
 					MatchingSocketLocation(this, buildable, socketCoord, sceneSocketCoord) &&
 					MatchingSockets(this, buildable, socketCoord, sceneSocketCoord))
 				{
-					if(_SOCKET_DEBUG)
+					if (_SOCKET_DEBUG)
 					{
 						GD.Print("Found Matching Sockets on: \n", socketCoord.ToString(), "\n", sceneSocketCoord.ToString());
 					}
@@ -251,14 +252,14 @@ public class Buildable : Area2D
 	{
 		int sockettype_bit_mask1 = b1.SocketConnectabilityMap()[v1];
 		int sockettype_bit_mask2 = b2.SocketConnectabilityMap()[v2];
-		return (sockettype_bit_mask1&sockettype_bit_mask2) != 0;
+		return (sockettype_bit_mask1 & sockettype_bit_mask2) != 0;
 	}
 
 	public bool MatchingSocketLocation(Buildable b1, Buildable b2, Vector2 v1, Vector2 v2)
 	{
-		
+
 		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
-		return b1.Position + v1*gridBlockSize == b2.Position + v2*gridBlockSize;
+		return b1.Position + v1 * gridBlockSize == b2.Position + v2 * gridBlockSize;
 	}
 
 	public bool OpposingSocketDirection(Vector2 v1, Vector2 v2)
@@ -285,16 +286,38 @@ public class Buildable : Area2D
 
 	public void SetTextureHueNeutral()
 	{
-		Modulate = new Color(1f, 1f, 1f, 1f);
+		Modulate = new Color(1f, 1f, 1f, Modulate.a);
+	}
+	private void SetTextureOpaque()
+	{
 
+		Modulate = new Color(Modulate.r, Modulate.g, Modulate.b, .5f);
 	}
-	public void SetTextureOpaque()
+	private void SetTextureHueRed()
 	{
-		Modulate = new Color(1f, 1f, 1f, .5f);
+		Modulate = new Color(1f, .2f, .2f, Modulate.a);
 	}
-	public void SetTextureHueRed()
+
+	private void SetTextureHueGreen()
 	{
-		Modulate = new Color(1f, .2f, .2f, .5f);
+		Modulate = new Color(.2f, 1f, .2f, Modulate.a);
+	}
+
+	public void SetTextureHueNeutralOpaque()
+	{
+		SetTextureHueNeutral();
+		SetTextureOpaque();
+	}
+
+	public void SetTextureHueRedOpaque()
+	{
+		SetTextureHueRed();
+		SetTextureOpaque();
+	}
+	public void SetTextureHueGreenOpaque()
+	{
+		SetTextureHueGreen();
+		SetTextureOpaque();
 	}
 
 	public bool BuildableHasConnection(int socketType, Buildable buildable)
@@ -302,33 +325,33 @@ public class Buildable : Area2D
 		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap();
 		List<Buildable> traversedBuildables = new List<Buildable>();
 		Queue<KeyValuePair<Vector2, Buildable>> buildableSearchQueue = new Queue<KeyValuePair<Vector2, Buildable>>();
-		foreach(KeyValuePair<Vector2, Buildable> _kvp in attachedBuildables)
+		foreach (KeyValuePair<Vector2, Buildable> _kvp in attachedBuildables)
 		{
 			buildableSearchQueue.Enqueue(_kvp);
 		}
 		KeyValuePair<Vector2, Buildable> kvp;
 		////Vector2 searchSocketLocalPos = kvp.Key;
 		////Buildable searchBuildable = kvp.Value;
-		while(buildableSearchQueue.Count > 0)
+		while (buildableSearchQueue.Count > 0)
 		{
 			kvp = buildableSearchQueue.Dequeue();
-			if(kvp.Value == null)
+			if (kvp.Value == null)
 			{
 				attachedBuildables.Remove(kvp.Key);
 				continue;
 			}
-			else if((socketType & socketConnectabilityMap[kvp.Key]) == 0)
+			else if ((socketType & socketConnectabilityMap[kvp.Key]) == 0)
 			{
 				traversedBuildables.Add(kvp.Value);
 				continue;
 			}
-			else if(kvp.Value == buildable)
+			else if (kvp.Value == buildable)
 			{
 				return true;
 			}
-			else if(!traversedBuildables.Contains(kvp.Value))
+			else if (!traversedBuildables.Contains(kvp.Value))
 			{
-				foreach(KeyValuePair<Vector2, Buildable> b_kvp in kvp.Value.attachedBuildables)
+				foreach (KeyValuePair<Vector2, Buildable> b_kvp in kvp.Value.attachedBuildables)
 				{
 					buildableSearchQueue.Enqueue(b_kvp);
 				}

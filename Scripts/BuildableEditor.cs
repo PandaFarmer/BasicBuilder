@@ -123,11 +123,11 @@ public class BuildableEditor : Node2D
 				_queued_buildable.Position = _cursor_location;
 				if (ValidPlacement(_queued_buildable))
 				{
-					_queued_buildable.SetTextureOpaque();
+					_queued_buildable.SetTextureHueNeutralOpaque();
 				}
 				else
 				{
-					_queued_buildable.SetTextureHueRed();
+					_queued_buildable.SetTextureHueRedOpaque();
 				}
 			}
 		}
@@ -444,7 +444,7 @@ public class BuildableEditor : Node2D
 	public void AssignQueuedBuildable(int buildableId)//assigns and sets opacity
 	{
 		_queued_buildable = (Buildable)_buildables_dictionary[buildableId].Duplicate();
-		_queued_buildable.SetTextureOpaque();
+		_queued_buildable.SetTextureHueNeutralOpaque();
 		_queued_buildable.buildableId = buildableId;
 	}
 
