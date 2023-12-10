@@ -30,6 +30,7 @@ public class BuildableInfo
 	public int dimension_y;
 	public float texture_scale_x;
 	public float texture_scale_y;
+	public int source_sink_id;
 }
 
 public class TextureScaleHandler
