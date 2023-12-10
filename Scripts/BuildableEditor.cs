@@ -120,7 +120,7 @@ public class BuildableEditor : Node2D
 			}
 			if (!_in_menu_mode && _queued_buildable != null)
 			{
-				_cursor_location = SnapToGrid(_cursorLocation);
+				_cursor_location = SnapToGrid(_cursorLocation, _queued_buildable.oddX, _queued_buildable.oddY);
 				_queued_buildable.Position = _cursor_location;
 				if (ValidPlacement(_queued_buildable))
 				{
@@ -500,7 +500,7 @@ public class BuildableEditor : Node2D
 
 	public Vector2 SnapToGrid(Vector2 position, bool oddX, bool oddY)
 	{
-		return new Vector2(ClosestGlobalCoordOnGrid(_cursorLocation.x, 0), ClosestGlobalCoordOnGrid(_cursorLocation.y, 1));
+		return new Vector2(ClosestGlobalCoordOnGrid(_cursorLocation.x, 0, oddX), ClosestGlobalCoordOnGrid(_cursorLocation.y, 1, oddY));
 	}
 
 	public Vector2 BuildableFlipScale(Buildable buildable, int buildableId)
@@ -508,26 +508,17 @@ public class BuildableEditor : Node2D
 		return _buildables_dictionary[buildableId].Scale / buildable.Scale;
 	}
 
-	public float ClosestGlobalCoordOnGrid(float value, int axis)
+	public float ClosestGlobalCoordOnGrid(float value, int axis, bool oddDims)
 	{
-		float offset = axis == 0 ? _GRID_ORIGIN.x : _GRID_ORIGIN.y;
+		float half_block = _GRID_BLOCK_SIZE / 2;
+		float oddOffset = oddDims ? half_block : 0;
+		// float offset = axis == 0 ? _GRID_ORIGIN.x : _GRID_ORIGIN.y;
+		float offset = axis == 0 ? _GRID_ORIGIN.x + oddOffset : _GRID_ORIGIN.y + oddOffset;
 		float diff = value - offset;
 		if (diff > 0)
-			diff += _GRID_BLOCK_SIZE / 2;
+			diff += half_block;
 		else if (diff < 0)
-			diff -= _GRID_BLOCK_SIZE / 2;
-		int block_coord = (int)(diff / _GRID_BLOCK_SIZE);
-		return block_coord * _GRID_BLOCK_SIZE + offset;
-	}
-
-	public float ClosestGlobalCoordOnHalfGridOffset(float value, int axis)
-	{
-		float offset = axis == 0 ? _GRID_ORIGIN.x : _GRID_ORIGIN.y;
-		float diff = value - offset;
-		if (diff > 0)
-			diff += _GRID_BLOCK_SIZE / 2;
-		else if (diff < 0)
-			diff -= _GRID_BLOCK_SIZE / 2;
+			diff -= half_block;
 		int block_coord = (int)(diff / _GRID_BLOCK_SIZE);
 		return block_coord * _GRID_BLOCK_SIZE + offset;
 	}
