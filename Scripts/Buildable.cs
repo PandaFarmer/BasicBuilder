@@ -2,11 +2,12 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.InteropServices.WindowsRuntime;
 // using System.Numerics;
 
 public class Buildable : Area2D
 {
-	public bool _DEBUG = false;
+	public bool _DEBUG = true;
 	public bool _SOCKET_DEBUG = false;
 	public static uint _BUILD_COLLISION_LAYER = 1234;
 	// public static string _BUILD_GROUP = "BUILD_GROUP";
@@ -20,8 +21,9 @@ public class Buildable : Area2D
 	public string buildableName;
 	public string buildablePathName;
 	public Vector2 dimensions;
-	public float buildRotation;
 	public Dictionary<Vector2, Buildable> attachedBuildables;
+
+	public bool OddOrthogonal;
 
 	// public bool isIsometric;
 	// public bool isRotationallyIsomorphic;
@@ -30,6 +32,7 @@ public class Buildable : Area2D
 
 	public override void _Ready()
 	{
+		
 		// addToGroup(_BUILD_GROUP);
 		CollisionLayer = _BUILD_COLLISION_LAYER;
 		foreach (Node child in GetChildren())
@@ -44,16 +47,20 @@ public class Buildable : Area2D
 		}
 		SafeInitializeAttachedBuildables();
 		ZIndex = -1;
+		OddOrthogonal = false;
 	}
+
 
 
 	public void RotateCounterClockwiseOrthogonal()
 	{
+		OddOrthogonal = !OddOrthogonal;
 		this.Rotation = this.Rotation + (float)Math.PI / 2f;
 	}
 
 	public void RotateClockwiseOrthogonal()
 	{
+		OddOrthogonal = !OddOrthogonal;
 		this.Rotation = this.Rotation - (float)Math.PI / 2f;
 	}
 
@@ -161,14 +168,14 @@ public class Buildable : Area2D
 		get{return ((BuildableEditor)GetParent())._buildables_socketRequirementMap[buildableId];}
 	}
 
-	public bool oddX
+	public bool OddX()
 	{
-		get{return dimensions.x%2 == 1;}
+		return OddOrthogonal ? dimensions.y%2 == 1: dimensions.x%2 == 1;
 	}
 
-	public bool oddY
+	public bool OddY()
 	{
-		get{return dimensions.y%2 == 1;}
+		return OddOrthogonal ? dimensions.x%2 == 1: dimensions.y%2 == 1;
 	}
 
 	public Vector2 MatchingSocket(Buildable buildable)
@@ -307,7 +314,12 @@ public class Buildable : Area2D
 	{
 		Modulate = new Color(1f, 1f, 1f, Modulate.a);
 	}
-	private void SetTextureOpaque()
+
+	public void SetTextureOpaque()
+	{
+		Modulate = new Color(Modulate.r, Modulate.g, Modulate.b, 1f);
+	}
+	private void SetTextureTransparent()
 	{
 
 		Modulate = new Color(Modulate.r, Modulate.g, Modulate.b, .5f);
@@ -322,21 +334,21 @@ public class Buildable : Area2D
 		Modulate = new Color(.2f, 1f, .2f, Modulate.a);
 	}
 
-	public void SetTextureHueNeutralOpaque()
+	public void SetTextureHueNeutralTransparent()
 	{
 		SetTextureHueNeutral();
-		SetTextureOpaque();
+		SetTextureTransparent();
 	}
 
-	public void SetTextureHueRedOpaque()
+	public void SetTextureHueRedTransparent()
 	{
 		SetTextureHueRed();
-		SetTextureOpaque();
+		SetTextureTransparent();
 	}
-	public void SetTextureHueGreenOpaque()
+	public void SetTextureHueGreenTransparent()
 	{
 		SetTextureHueGreen();
-		SetTextureOpaque();
+		SetTextureTransparent();
 	}
 
 	public bool BuildableHasConnection(int socketType, Buildable buildable)

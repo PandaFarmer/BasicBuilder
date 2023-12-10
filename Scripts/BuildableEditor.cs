@@ -120,15 +120,15 @@ public class BuildableEditor : Node2D
 			}
 			if (!_in_menu_mode && _queued_buildable != null)
 			{
-				_cursor_location = SnapToGrid(_cursorLocation, _queued_buildable.oddX, _queued_buildable.oddY);
+				_cursor_location = SnapToGrid(_cursorLocation, _queued_buildable);
 				_queued_buildable.Position = _cursor_location;
 				if (ValidPlacement(_queued_buildable))
 				{
-					_queued_buildable.SetTextureHueNeutralOpaque();
+					_queued_buildable.SetTextureHueNeutralTransparent();
 				}
 				else
 				{
-					_queued_buildable.SetTextureHueRedOpaque();
+					_queued_buildable.SetTextureHueRedTransparent();
 				}
 			}
 		}
@@ -205,6 +205,7 @@ public class BuildableEditor : Node2D
 	{
 		Buildable placementBuildable = (Buildable)_queued_buildable.Duplicate();
 		placementBuildable.SetTextureHueNeutral();
+		placementBuildable.SetTextureOpaque();
 		AddChild(placementBuildable);
 		Vector2 attachmentSocket;
 		foreach (Node node in GetChildren())
@@ -465,7 +466,7 @@ public class BuildableEditor : Node2D
 	public void AssignQueuedBuildable(int buildableId)//assigns and sets opacity
 	{
 		_queued_buildable = (Buildable)_buildables_dictionary[buildableId].Duplicate();
-		_queued_buildable.SetTextureHueNeutralOpaque();
+		_queued_buildable.SetTextureHueNeutralTransparent();
 		_queued_buildable.buildableId = buildableId;
 	}
 
@@ -498,9 +499,9 @@ public class BuildableEditor : Node2D
 		}
 	}
 
-	public Vector2 SnapToGrid(Vector2 position, bool oddX, bool oddY)
+	public Vector2 SnapToGrid(Vector2 position, Buildable buildable)
 	{
-		return new Vector2(ClosestGlobalCoordOnGrid(_cursorLocation.x, 0, oddX), ClosestGlobalCoordOnGrid(_cursorLocation.y, 1, oddY));
+		return new Vector2(ClosestGlobalCoordOnGrid(_cursorLocation.x, 0, buildable.OddX()), ClosestGlobalCoordOnGrid(_cursorLocation.y, 1, buildable.OddY()));
 	}
 
 	public Vector2 BuildableFlipScale(Buildable buildable, int buildableId)
