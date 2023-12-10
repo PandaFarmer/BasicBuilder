@@ -7,20 +7,20 @@ using System.Reflection;
 public class Buildable : Area2D
 {
 	public bool _DEBUG = false;
-	public bool _SOCKET_DEBUG = true;
+	public bool _SOCKET_DEBUG = false;
 	public static uint _BUILD_COLLISION_LAYER = 1234;
 	// public static string _BUILD_GROUP = "BUILD_GROUP";
 	public int buildableId;
 	public Texture smallMenuTexture;
 	public Texture mediumMenuTexture;
-	public Texture LargeMenuTexture;
+	public Texture largeMenuTexture;
 
 	public Vector2 textureScale;
 	// public Vector2 _baseScale;//?
 	public string buildableName;
 	public string buildablePathName;
 	public Vector2 dimensions;
-
+	public float buildRotation;
 	public Dictionary<Vector2, Buildable> attachedBuildables;
 
 	// public bool isIsometric;
@@ -42,7 +42,7 @@ public class Buildable : Area2D
 				return;
 			}
 		}
-		attachedBuildables = new Dictionary<Vector2, Buildable>();
+		SafeInitializeAttachedBuildables();
 		ZIndex = -1;
 	}
 
@@ -72,6 +72,14 @@ public class Buildable : Area2D
 		// throw NotImplementedException;
 		return false;
 		//if it is the 1st Buildable attached to buildablesRoot or has an adjacent Buildable that follows socket connection rules
+	}
+
+	public void SafeInitializeAttachedBuildables()
+	{
+		if(attachedBuildables == null)
+		{
+			attachedBuildables = new Dictionary<Vector2, Buildable>();
+		}
 	}
 
 	public Vector2 TextureScaledDimensions(Texture texture, Vector2 dimensions)
@@ -143,20 +151,20 @@ public class Buildable : Area2D
 		return !(maxVThis.x < minVOther.x || maxVThis.y < minVOther.y || minVThis.x > maxVOther.x || minVThis.y > maxVOther.y);
 	}
 
-	public Dictionary<Vector2, int> SocketConnectabilityMap()
+	public Dictionary<Vector2, int> SocketConnectabilityMap
 	{
-		return ((BuildableEditor)GetParent())._buildables_socketConnectabilityMap[buildableId];
+		get{return ((BuildableEditor)GetParent())._buildables_socketConnectabilityMap[buildableId];}
 	}
 
-	public Dictionary<Vector2, int> SocketRequirementMap()
+	public Dictionary<Vector2, int> SocketRequirementMap
 	{
-		return ((BuildableEditor)GetParent())._buildables_socketRequirementMap[buildableId];
+		get{return ((BuildableEditor)GetParent())._buildables_socketRequirementMap[buildableId];}
 	}
 
 	public Vector2 MatchingSocket(Buildable buildable)
 	{
-		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap();
-		Dictionary<Vector2, int> sceneSocketConnectabilityMap = buildable.SocketConnectabilityMap();
+		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap;
+		Dictionary<Vector2, int> sceneSocketConnectabilityMap = buildable.SocketConnectabilityMap;
 		if (buildable == null)
 		{
 			if (_SOCKET_DEBUG)
@@ -181,8 +189,8 @@ public class Buildable : Area2D
 	public bool HasAllRequiredSockets(Buildable buildable)
 	{
 		//requirement bitmask may be 0->optional, 1->at least1, 2-> at most 1 ??
-		Dictionary<Vector2, int> socketRequirementMap = SocketRequirementMap();
-		Dictionary<Vector2, int> sceneSocketRequirementMap = buildable.SocketRequirementMap();
+		Dictionary<Vector2, int> socketRequirementMap = SocketRequirementMap;
+		Dictionary<Vector2, int> sceneSocketRequirementMap = buildable.SocketRequirementMap;
 
 		if (buildable == null || socketRequirementMap == null)
 		{
@@ -215,8 +223,8 @@ public class Buildable : Area2D
 
 	public bool HasMismatchedSockets(Buildable buildable)
 	{
-		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap();
-		Dictionary<Vector2, int> sceneSocketConnectabilityMap = buildable.SocketConnectabilityMap();
+		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap;
+		Dictionary<Vector2, int> sceneSocketConnectabilityMap = buildable.SocketConnectabilityMap;
 
 		if (buildable == null)
 		{
@@ -251,8 +259,8 @@ public class Buildable : Area2D
 
 	public bool MatchingSockets(Buildable b1, Buildable b2, Vector2 v1, Vector2 v2)
 	{
-		int sockettype_bit_mask1 = b1.SocketConnectabilityMap()[v1];
-		int sockettype_bit_mask2 = b2.SocketConnectabilityMap()[v2];
+		int sockettype_bit_mask1 = b1.SocketConnectabilityMap[v1];
+		int sockettype_bit_mask2 = b2.SocketConnectabilityMap[v2];
 		return (sockettype_bit_mask1 & sockettype_bit_mask2) != 0;
 	}
 
@@ -323,7 +331,7 @@ public class Buildable : Area2D
 
 	public bool BuildableHasConnection(int socketType, Buildable buildable)
 	{
-		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap();
+		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap;
 		List<Buildable> traversedBuildables = new List<Buildable>();
 		Queue<KeyValuePair<Vector2, Buildable>> buildableSearchQueue = new Queue<KeyValuePair<Vector2, Buildable>>();
 		foreach (KeyValuePair<Vector2, Buildable> _kvp in attachedBuildables)

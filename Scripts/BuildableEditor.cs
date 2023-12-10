@@ -48,9 +48,9 @@ public class TextureScaleHandler
 
 public class BuildableEditor : Node2D
 {
-	public bool _DEBUG = false;
+	public bool _DEBUG = true;
 	public bool _SCREEN_DEBUG = false;
-	public bool _SOCKET_DEBUG = true;
+	public bool _SOCKET_DEBUG = false;
 
 	public static string _BUILD_GROUP = "BUILD_GROUP";
 
@@ -212,6 +212,22 @@ public class BuildableEditor : Node2D
 				attachmentSocket = placementBuildable.MatchingSocket(buildable);
 				if (Vector2.Zero != attachmentSocket)
 				{
+					if(_DEBUG)
+					{
+						if(placementBuildable == null)
+						{
+							GD.Print("placementBuildable null!");
+						}
+						if(placementBuildable.attachedBuildables ==  null)
+						{
+							GD.Print("placementBuildable.attachedBuildables null!");
+						}
+						if(buildable == null)
+						{
+							GD.Print("buildable null!");
+						}
+					}
+					placementBuildable.SafeInitializeAttachedBuildables();
 					placementBuildable.attachedBuildables[attachmentSocket] = buildable;//need to consider deletion..
 				}
 			}
@@ -325,7 +341,7 @@ public class BuildableEditor : Node2D
 
 			texture_path = String.Format("res://{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, large_texture_path_suffix);
 			large_texture = GD.Load<Texture>(texture_path);
-			buildable.LargeMenuTexture = large_texture;
+			buildable.largeMenuTexture = large_texture;
 
 			textureScaleHandler = new TextureScaleHandler(small_texture, medium_texture, large_texture);
 
