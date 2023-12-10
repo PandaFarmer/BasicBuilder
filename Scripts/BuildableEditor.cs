@@ -186,6 +186,10 @@ public class BuildableEditor : Node2D
 					AssignQueuedBuildableFromPalette(2);
 				else if (Input.IsActionPressed("ui_3"))
 					AssignQueuedBuildableFromPalette(3);
+				else if(Input.IsActionPressed("ui_rotate_left"))
+					_queued_buildable.RotateCounterClockwiseOrthogonal();
+				else if(Input.IsActionPressed("ui_rotate_right"))
+					_queued_buildable.RotateClockwiseOrthogonal();
 				else
 					return;
 			}
