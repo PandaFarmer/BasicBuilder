@@ -161,6 +161,16 @@ public class Buildable : Area2D
 		get{return ((BuildableEditor)GetParent())._buildables_socketRequirementMap[buildableId];}
 	}
 
+	public bool oddX
+	{
+		get{return dimensions.x%2 == 1;}
+	}
+
+	public bool oddY
+	{
+		get{return dimensions.y%2 == 1;}
+	}
+
 	public Vector2 MatchingSocket(Buildable buildable)
 	{
 		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap;

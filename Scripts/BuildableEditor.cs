@@ -498,7 +498,7 @@ public class BuildableEditor : Node2D
 		}
 	}
 
-	public Vector2 SnapToGrid(Vector2 position)
+	public Vector2 SnapToGrid(Vector2 position, bool oddX, bool oddY)
 	{
 		return new Vector2(ClosestGlobalCoordOnGrid(_cursorLocation.x, 0), ClosestGlobalCoordOnGrid(_cursorLocation.y, 1));
 	}
@@ -509,6 +509,18 @@ public class BuildableEditor : Node2D
 	}
 
 	public float ClosestGlobalCoordOnGrid(float value, int axis)
+	{
+		float offset = axis == 0 ? _GRID_ORIGIN.x : _GRID_ORIGIN.y;
+		float diff = value - offset;
+		if (diff > 0)
+			diff += _GRID_BLOCK_SIZE / 2;
+		else if (diff < 0)
+			diff -= _GRID_BLOCK_SIZE / 2;
+		int block_coord = (int)(diff / _GRID_BLOCK_SIZE);
+		return block_coord * _GRID_BLOCK_SIZE + offset;
+	}
+
+	public float ClosestGlobalCoordOnHalfGridOffset(float value, int axis)
 	{
 		float offset = axis == 0 ? _GRID_ORIGIN.x : _GRID_ORIGIN.y;
 		float diff = value - offset;
