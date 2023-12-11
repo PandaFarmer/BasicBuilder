@@ -213,7 +213,7 @@ public class Buildable : Area2D
 		{
 			if (_SOCKET_DEBUG)
 			{
-				GD.Print("WARNING: other buildable, socketRequirementMap, or socketConnectabilityMap is uninitialized");
+				GD.Print("WARNING: other buildable, socketRequirementMap, or socketConnectabilityMap is uninitialized?");
 			}
 			return false;
 		}
