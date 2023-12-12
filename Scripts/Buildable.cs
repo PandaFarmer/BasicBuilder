@@ -127,6 +127,11 @@ public class Buildable : Area2D
 	public List<Buildable> AllOverlappingBuildables()
 	{
 		List<Buildable> overlappingBuildables = new List<Buildable>();
+		if(GetParent() == null)
+		{
+			GD.Print("WARN: Buildable not attached to BuildableEditor sceneroot NULL");
+			return overlappingBuildables;
+		}
 		foreach(Node node in ((BuildableEditor)GetParent()).GetChildren())
 		{
 		
@@ -188,12 +193,23 @@ public class Buildable : Area2D
 
 	public int BuildableLayerMask
 	{
-		get{return ((BuildableEditor)GetParent()).buildables_layer_masks[buildableId];}
+		get{if((BuildableEditor)GetParent() == null)
+		{
+			GD.Print("WARN: Buildable not attached to BuildableEditor sceneroot NULL");
+			return 0;
+		}
+		return ((BuildableEditor)GetParent()).buildables_layer_masks[buildableId];}
 	}
 
 	public int BuildableLayerRequirementMask
 	{
-		get{return ((BuildableEditor)GetParent())._buildables_layer_requirement_masks[buildableId];}
+		
+		get{if((BuildableEditor)GetParent() == null)
+		{
+			GD.Print("WARN: Buildable not attached to BuildableEditor sceneroot NULL");
+			return 0;
+		}
+			return ((BuildableEditor)GetParent())._buildables_layer_requirement_masks[buildableId];}
 	}
 
 	//

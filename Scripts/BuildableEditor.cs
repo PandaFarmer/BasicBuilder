@@ -551,7 +551,7 @@ public class BuildableEditor : Node2D
 		{
 			if(!buildable.CanPlaceOver(overlappingBuildable)) return false;
 		}
-		
+		// BasicValidCheck();
 		return buildable.GetOverlappingAreas().Count == 0;
 
 		//if you wanted to complicate things with groups:
