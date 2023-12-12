@@ -72,7 +72,7 @@ public class BuildableEditor : Node2D
 	public Dictionary<int, Dictionary<Vector2, int>> _buildables_socketRequirementMap;
 
 	public Dictionary<int, int> buildables_layer_masks;
-	public Dictionary<int, int> _buildables_layer_requirement_masks;//or logic btw
+	public Dictionary<int, int> _buildables_layer_requirement_masks;//or logic btw..
 
 
 	public Buildable _queued_buildable;
@@ -214,6 +214,7 @@ public class BuildableEditor : Node2D
 		Buildable placementBuildable = (Buildable)_queued_buildable.Duplicate();
 		placementBuildable.SetTextureHueNeutral();
 		placementBuildable.SetTextureOpaque();
+		placementBuildable.placementLayer = placementBuildable.PlacementLayer();
 		AddChild(placementBuildable);
 		Vector2 attachmentSocket;
 		foreach (Node node in GetChildren())
@@ -546,7 +547,26 @@ public class BuildableEditor : Node2D
 		}
 		int bitmaskBuildable, bitmaskSceneBuildable = 0;
 		
+		foreach(Buildable overlappingBuildable in buildable.AllOverlappingBuildables())
+		{
+			if(!buildable.CanPlaceOver(overlappingBuildable)) return false;
+		}
+		
+		return buildable.GetOverlappingAreas().Count == 0;
 
+		//if you wanted to complicate things with groups:
+		// foreach(Area2D area2D in buildable.getOverlappingAreas())
+		// {
+		//     if(!area2D.isInGroup(_BUILD_GROUP))//omit?
+		//     {
+		//         return false;
+		//     }
+
+		// }
+	}
+
+	public bool BasicValidCheck(Buildable buildable)
+	{
 		foreach (Node node in GetChildren())//if GetOverlapping Areas doesn't include lightly touching/adjacent but nonoverlap
 		{
 			if (node.GetInstanceId() == _queued_buildable.GetInstanceId())
@@ -599,17 +619,7 @@ public class BuildableEditor : Node2D
 				// }
 			}
 		}
-		return buildable.GetOverlappingAreas().Count == 0;
-
-		//if you wanted to complicate things with groups:
-		// foreach(Area2D area2D in buildable.getOverlappingAreas())
-		// {
-		//     if(!area2D.isInGroup(_BUILD_GROUP))//omit?
-		//     {
-		//         return false;
-		//     }
-
-		// }
+		return true;
 	}
 
 }

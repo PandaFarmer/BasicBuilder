@@ -196,7 +196,8 @@ public class Buildable : Area2D
 		get{return ((BuildableEditor)GetParent())._buildables_layer_requirement_masks[buildableId];}
 	}
 
-	public int PlacementLayer(Buildable buildable)
+	//
+	public int PlacementLayer()
 	{
 		//auto place.. also add controls later to move piece up/down? +ui for layer indication?
 		//place simply by overlap check+placeable layer bit gen? howto consider sockets..
@@ -217,6 +218,7 @@ public class Buildable : Area2D
 		return layer;
 	}
 
+	//should be passing in _queued_buildable as param here
 	public bool CanPlaceOver(Buildable buildable)
 	{
 		int placeable_layer_bit = 1 << (buildable.placementLayer  + 1);
@@ -444,10 +446,5 @@ public class Buildable : Area2D
 			}
 		}
 		return false;
-	}
-
-	public bool hasCorrectBuildLayer()
-	{
-
 	}
 }
