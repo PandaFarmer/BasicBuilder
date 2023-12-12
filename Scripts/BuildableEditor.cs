@@ -71,8 +71,8 @@ public class BuildableEditor : Node2D
 	public Dictionary<int, Dictionary<Vector2, int>> _buildables_socketConnectabilityMap;
 	public Dictionary<int, Dictionary<Vector2, int>> _buildables_socketRequirementMap;
 
-	public Dictionary<int, int> _buildable_layer_masks;
-	public Dictionary<int, int> _buildable_layer_requirement_masks;//or logic btw
+	public Dictionary<int, int> buildables_layer_masks;
+	public Dictionary<int, int> _buildables_layer_requirement_masks;//or logic btw
 
 
 	public Buildable _queued_buildable;
@@ -102,8 +102,8 @@ public class BuildableEditor : Node2D
 		_buildables_texture_scales = new Dictionary<int, Vector2>();
 		_buildables_socketConnectabilityMap = new Dictionary<int, Dictionary<Vector2, int>>();
 		_buildables_socketRequirementMap = new Dictionary<int, Dictionary<Vector2, int>>();
-		_buildable_layer_masks = new Dictionary<int, int>();
-		_buildable_layer_requirement_masks = new Dictionary<int, int>();
+		buildables_layer_masks = new Dictionary<int, int>();
+		_buildables_layer_requirement_masks = new Dictionary<int, int>();
 
 		_palette_container = (Panel)FindNode("PanelPalette");
 
@@ -344,8 +344,8 @@ public class BuildableEditor : Node2D
 			}
 			_buildables_socketConnectabilityMap[buildableInfo.buildable_id] = socketConnectabilityMap;
 			_buildables_socketRequirementMap[buildableInfo.buildable_id] = socketRequirementMap;
-			_buildable_layer_masks[buildableInfo.buildable_id] = buildableInfo.buildable_layer_mask;
-			_buildable_layer_requirement_masks[buildableInfo.buildable_id] = buildableInfo.buildable_layer_requirement_mask;
+			buildables_layer_masks[buildableInfo.buildable_id] = buildableInfo.buildable_layer_mask;
+			_buildables_layer_requirement_masks[buildableInfo.buildable_id] = buildableInfo.buildable_layer_requirement_mask;
 
 			texture_path = String.Format("res://{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, small_texture_path_suffix);
 			small_texture = GD.Load<Texture>(texture_path);
@@ -545,7 +545,7 @@ public class BuildableEditor : Node2D
 			GD.Print("checking valid placement.. ");
 		}
 		int bitmaskBuildable, bitmaskSceneBuildable = 0;
-
+		
 
 		foreach (Node node in GetChildren())//if GetOverlapping Areas doesn't include lightly touching/adjacent but nonoverlap
 		{

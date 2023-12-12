@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+// using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 // using System.Numerics;
@@ -29,6 +30,8 @@ public class Buildable : Area2D
 	// public bool isRotationallyIsomorphic;
 
 	public string labelName;
+
+	public int placementLayer;
 
 	public override void _Ready()
 	{
@@ -121,6 +124,21 @@ public class Buildable : Area2D
 		}
 	}
 
+	public List<Buildable> AllOverlappingBuildables()
+	{
+		List<Buildable> overlappingBuildables = new List<Buildable>();
+		foreach(Node node in ((BuildableEditor)GetParent()).GetChildren())
+		{
+		
+			if(node is Buildable buildable)
+			{
+				if(buildable == this) continue;
+				if(HasOverlap(buildable)) overlappingBuildables.Add(buildable);
+			}
+		}
+		return overlappingBuildables;
+	}
+
 	public bool HasOverlap(Buildable buildable)
 	{
 		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
@@ -166,6 +184,43 @@ public class Buildable : Area2D
 	public Dictionary<Vector2, int> SocketRequirementMap
 	{
 		get{return ((BuildableEditor)GetParent())._buildables_socketRequirementMap[buildableId];}
+	}
+
+	public int BuildableLayerMask
+	{
+		get{return ((BuildableEditor)GetParent()).buildables_layer_masks[buildableId];}
+	}
+
+	public int BuildableLayerRequirementMask
+	{
+		get{return ((BuildableEditor)GetParent())._buildables_layer_requirement_masks[buildableId];}
+	}
+
+	public int PlacementLayer(Buildable buildable)
+	{
+		//auto place.. also add controls later to move piece up/down? +ui for layer indication?
+		//place simply by overlap check+placeable layer bit gen? howto consider sockets..
+		int layer = 0;
+		int layer_mask = BuildableLayerRequirementMask;
+
+		foreach(Buildable _buildable in AllOverlappingBuildables())
+		{
+			//need to do an bit op that gives the viable ranges of non overlapping layers
+			layer_mask &= ~_buildable.placementLayer;
+		}
+		while((layer_mask & 1) != 0)
+		{
+			layer_mask >>= 1;
+			layer++;
+		}
+		
+		return layer;
+	}
+
+	public bool CanPlaceOver(Buildable buildable)
+	{
+		int placeable_layer_bit = 1 << (buildable.placementLayer  + 1);
+		return (placeable_layer_bit & BuildableLayerRequirementMask) != 0;
 	}
 
 	public bool OddX()
@@ -389,5 +444,10 @@ public class Buildable : Area2D
 			}
 		}
 		return false;
+	}
+
+	public bool hasCorrectBuildLayer()
+	{
+
 	}
 }
