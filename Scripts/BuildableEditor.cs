@@ -76,6 +76,8 @@ public class BuildableEditor : Node2D
 
 
 	public Buildable _queued_buildable;
+	public Buildable _selected_buildable;
+	public bool _drag_selection_on;
 
 	public List<Buildable> _selected_buildables;
 
@@ -142,8 +144,15 @@ public class BuildableEditor : Node2D
 		}
 		if (@event is InputEventMouseButton eventMouseButton)
 		{
+			
 			if (!eventMouseButton.Pressed)
 			{
+				if(_in_selection_mode)
+				{
+					_drag_selection_on = false;
+					
+				}
+				//"drop" if _in_selection_mode with buildable
 				return;
 			}
 			if (_in_build_mode && _queued_buildable != null)
@@ -155,6 +164,10 @@ public class BuildableEditor : Node2D
 				}
 				//add code for invalid placement
 			}
+			if(_in_selection_mode)
+			{
+				//"assign" _selected_buildable
+			}
 		}
 		if (@event is InputEventKey eventKeyPress)
 		{
@@ -164,6 +177,12 @@ public class BuildableEditor : Node2D
 					SetToMenuMode();
 				else
 					SetToBuildMode();
+				return;
+			}
+			if (Input.IsActionPressed("ui_selection_mode"))
+			{
+				if (_in_menu_mode) 
+					SetToSelectionMode();
 				return;
 			}
 			if (_in_menu_mode)
@@ -178,28 +197,34 @@ public class BuildableEditor : Node2D
 				}
 
 				//Buildable hovered_buildable = _buildables_dictionary[_buildableId].Duplicate();
-				if (Input.IsActionPressed("ui_1"))
-					UpdatePalette(1, hovered_buildableId);
-				if (Input.IsActionPressed("ui_2"))
-					UpdatePalette(2, hovered_buildableId);
-				if (Input.IsActionPressed("ui_3"))
-					UpdatePalette(3, hovered_buildableId);
+				for (int numericKeyIndex = 0; numericKeyIndex < 10; numericKeyIndex++)
+				{
+					if (Input.IsActionPressed($"ui_{numericKeyIndex}"))
+						UpdatePalette(numericKeyIndex, hovered_buildableId);
+				}
 			}
 			if (_in_build_mode)//update _queued_buildable
 			{
 				// int buildableId = -1;
-				if (Input.IsActionPressed("ui_1"))
-					AssignQueuedBuildableFromPalette(1);
-				else if (Input.IsActionPressed("ui_2"))
-					AssignQueuedBuildableFromPalette(2);
-				else if (Input.IsActionPressed("ui_3"))
-					AssignQueuedBuildableFromPalette(3);
-				else if(Input.IsActionPressed("ui_rotate_left"))
+				for (int numericKeyIndex = 0; numericKeyIndex < 10; numericKeyIndex++)
+				{
+					if (Input.IsActionPressed($"ui_{numericKeyIndex}"))
+						AssignQueuedBuildableFromPalette(numericKeyIndex);
+				}
+
+				if (Input.IsActionPressed("ui_rotate_left"))
 					_queued_buildable.RotateCounterClockwiseOrthogonal();
-				else if(Input.IsActionPressed("ui_rotate_right"))
+				else if (Input.IsActionPressed("ui_rotate_right"))
 					_queued_buildable.RotateClockwiseOrthogonal();
 				else
 					return;
+			}
+			if(_in_selection_mode)
+			{
+				if(Input.IsActionPressed("ui_delete"))
+				{
+					RemovePlacedBuildable(HoveredBuildableId());
+				}
 			}
 		}
 	}
@@ -207,6 +232,21 @@ public class BuildableEditor : Node2D
 	public override void _PhysicsProcess(float Delta)
 	{
 
+	}
+
+	public void RemovePlacedBuildable(int buildableId)
+	{
+		foreach(Node node in GetChildren())
+		{
+			if(node is Buildable buildable)
+			{
+				if(buildable.buildableId == buildableId)
+				{
+					RemoveChild(buildable);
+					return;
+				}
+			}
+		}
 	}
 
 	public void PlaceQueuedBuildable()
@@ -220,24 +260,24 @@ public class BuildableEditor : Node2D
 		foreach (Node node in GetChildren())
 		{
 			if (node is Buildable buildable &&
-				buildable != placementBuildable && 
+				buildable != placementBuildable &&
 				buildable != _queued_buildable &&
 				placementBuildable.IsTouching(buildable))
 			{
 				attachmentSocket = placementBuildable.MatchingSocket(buildable);
 				if (Vector2.Zero != attachmentSocket)
 				{
-					if(_DEBUG)
+					if (_DEBUG)
 					{
-						if(placementBuildable == null)
+						if (placementBuildable == null)
 						{
 							GD.Print("placementBuildable null!");
 						}
-						if(placementBuildable.attachedBuildables ==  null)
+						if (placementBuildable.attachedBuildables == null)
 						{
 							GD.Print("placementBuildable.attachedBuildables null!");
 						}
-						if(buildable == null)
+						if (buildable == null)
 						{
 							GD.Print("buildable null!");
 						}
@@ -546,10 +586,10 @@ public class BuildableEditor : Node2D
 			GD.Print("checking valid placement.. ");
 		}
 		int bitmaskBuildable, bitmaskSceneBuildable = 0;
-		
-		foreach(Buildable overlappingBuildable in buildable.AllOverlappingBuildables())
+
+		foreach (Buildable overlappingBuildable in buildable.AllOverlappingBuildables())
 		{
-			if(!buildable.CanPlaceOver(overlappingBuildable)) return false;
+			if (!buildable.CanPlaceOver(overlappingBuildable)) return false;
 		}
 		// BasicValidCheck();
 		return buildable.GetOverlappingAreas().Count == 0;
