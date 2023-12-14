@@ -33,9 +33,26 @@ public class Buildable : Area2D
 
 	public int placementLayer;
 
+	// public Godot.Collections.Dictionary<string, Buildable> Save()
+	// {
+	// 	return new Godot.Collections.Dictionary<string, Buildable>()
+	// 	{
+	// 		{"buildableId", buildableId},
+	// 		{"textureScaleX", textureScale.X},
+	// 		{"textureScaleY", textureScale.Y},
+	// 		{"buildableName", buildableName},
+	// 		{"buildablePathName", buildablePathName},
+	// 		{"dimensionsX", dimensions.X},
+	// 		{"dimensionsY", dimensions.Y},
+	// 		{"OddOrthogonal", OddOrthogonal},
+	// 		{"labelName", labelName},
+	// 		{"placementLayer", placementLayer}
+	// 	};
+	// }
+
 	public override void _Ready()
 	{
-		
+
 		// addToGroup(_BUILD_GROUP);
 		CollisionLayer = _BUILD_COLLISION_LAYER;
 		foreach (Node child in GetChildren())
@@ -86,7 +103,7 @@ public class Buildable : Area2D
 
 	public void SafeInitializeAttachedBuildables()
 	{
-		if(attachedBuildables == null)
+		if (attachedBuildables == null)
 		{
 			attachedBuildables = new Dictionary<Vector2, Buildable>();
 		}
@@ -127,18 +144,18 @@ public class Buildable : Area2D
 	public List<Buildable> AllOverlappingBuildables()
 	{
 		List<Buildable> overlappingBuildables = new List<Buildable>();
-		if(GetParent() == null)
+		if (GetParent() == null)
 		{
 			GD.Print("WARN: Buildable not attached to BuildableEditor sceneroot NULL");
 			return overlappingBuildables;
 		}
-		foreach(Node node in ((BuildableEditor)GetParent()).GetChildren())
+		foreach (Node node in ((BuildableEditor)GetParent()).GetChildren())
 		{
-		
-			if(node is Buildable buildable)
+
+			if (node is Buildable buildable)
 			{
-				if(buildable == this) continue;
-				if(HasOverlap(buildable)) overlappingBuildables.Add(buildable);
+				if (buildable == this) continue;
+				if (HasOverlap(buildable)) overlappingBuildables.Add(buildable);
 			}
 		}
 		return overlappingBuildables;
@@ -183,33 +200,39 @@ public class Buildable : Area2D
 
 	public Dictionary<Vector2, int> SocketConnectabilityMap
 	{
-		get{return ((BuildableEditor)GetParent())._buildables_socketConnectabilityMap[buildableId];}
+		get { return ((BuildableEditor)GetParent())._buildables_socketConnectabilityMap[buildableId]; }
 	}
 
 	public Dictionary<Vector2, int> SocketRequirementMap
 	{
-		get{return ((BuildableEditor)GetParent())._buildables_socketRequirementMap[buildableId];}
+		get { return ((BuildableEditor)GetParent())._buildables_socketRequirementMap[buildableId]; }
 	}
 
 	public int BuildableLayerMask
 	{
-		get{if((BuildableEditor)GetParent() == null)
+		get
 		{
-			GD.Print("WARN: Buildable not attached to BuildableEditor sceneroot NULL");
-			return 0;
+			if ((BuildableEditor)GetParent() == null)
+			{
+				GD.Print("WARN: Buildable not attached to BuildableEditor sceneroot NULL");
+				return 0;
+			}
+			return ((BuildableEditor)GetParent()).buildables_layer_masks[buildableId];
 		}
-		return ((BuildableEditor)GetParent()).buildables_layer_masks[buildableId];}
 	}
 
 	public int BuildableLayerRequirementMask
 	{
-		
-		get{if((BuildableEditor)GetParent() == null)
+
+		get
 		{
-			GD.Print("WARN: Buildable not attached to BuildableEditor sceneroot NULL");
-			return 0;
+			if ((BuildableEditor)GetParent() == null)
+			{
+				GD.Print("WARN: Buildable not attached to BuildableEditor sceneroot NULL");
+				return 0;
+			}
+			return ((BuildableEditor)GetParent())._buildables_layer_requirement_masks[buildableId];
 		}
-			return ((BuildableEditor)GetParent())._buildables_layer_requirement_masks[buildableId];}
 	}
 
 	//
@@ -220,35 +243,35 @@ public class Buildable : Area2D
 		int layer = 0;
 		int layer_mask = BuildableLayerRequirementMask;
 
-		foreach(Buildable _buildable in AllOverlappingBuildables())
+		foreach (Buildable _buildable in AllOverlappingBuildables())
 		{
 			//need to do an bit op that gives the viable ranges of non overlapping layers
 			layer_mask &= ~_buildable.placementLayer;
 		}
-		while((layer_mask & 1) != 0)
+		while ((layer_mask & 1) != 0)
 		{
 			layer_mask >>= 1;
 			layer++;
 		}
-		
+
 		return layer;
 	}
 
 	//should be passing in _queued_buildable as param here
 	public bool CanPlaceOver(Buildable buildable)
 	{
-		int placeable_layer_bit = 1 << (buildable.placementLayer  + 1);
+		int placeable_layer_bit = 1 << (buildable.placementLayer + 1);
 		return (placeable_layer_bit & BuildableLayerRequirementMask) != 0;
 	}
 
 	public bool OddX()
 	{
-		return OddOrthogonal ? dimensions.y%2 == 1: dimensions.x%2 == 1;
+		return OddOrthogonal ? dimensions.y % 2 == 1 : dimensions.x % 2 == 1;
 	}
 
 	public bool OddY()
 	{
-		return OddOrthogonal ? dimensions.x%2 == 1: dimensions.y%2 == 1;
+		return OddOrthogonal ? dimensions.x % 2 == 1 : dimensions.y % 2 == 1;
 	}
 
 	public Vector2 MatchingSocket(Buildable buildable)

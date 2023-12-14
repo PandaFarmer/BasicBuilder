@@ -78,7 +78,6 @@ public class BuildableEditor : Node2D
 	public Buildable _queued_buildable;
 	public Buildable _selected_buildable;
 	public bool _drag_selection_on;
-
 	public List<Buildable> _selected_buildables;
 
 	public MenuContainer _menu_container;
