@@ -520,6 +520,23 @@ public class BuildableEditor : Node2D
 		_queued_buildable.buildableId = buildableId;
 	}
 
+	public void LoadBuildable(BuildableSaveStateInfo buildableSaveStateInfo)
+	{
+		Buildable buildable = (Buildable)_buildables_dictionary[buildableSaveStateInfo.buildableId].Duplicate();
+		buildable.buildableId = buildableSaveStateInfo.buildableId;
+		//possible redundancies/need standardized initialization method.. 
+		//dimensions, texturescale, buildablePathname
+		buildable.Position = new Vector2(buildableSaveStateInfo.PosX, buildableSaveStateInfo.PosY);
+		buildable.Scale = new Vector2(buildableSaveStateInfo.ScaleX, buildableSaveStateInfo.ScaleY);
+		buildable.textureScale = new Vector2(buildableSaveStateInfo.textureScaleX, buildableSaveStateInfo.textureScaleY);
+		buildable.dimensions = _buildables_dimensions[buildableSaveStateInfo.buildableId];
+		buildable.buildableName = buildableSaveStateInfo.buildableName;
+		buildable.buildablePathName = buildableSaveStateInfo.buildablePathName;
+		buildable.oddOrthogonal = buildableSaveStateInfo.oddOrthogonal;
+		buildable.labelName = buildableSaveStateInfo.labelName;
+		buildable.placementLayer = buildableSaveStateInfo.placementLayer;
+	}
+
 	public void UpdatePalette(int paletteBlock, int buildableId)
 	{
 		_buildables_palette[paletteBlock] = buildableId;

@@ -6,6 +6,28 @@ using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 // using System.Numerics;
 
+public class BuildableSaveStateInfoListWrapper
+{
+	public List<BuildableSaveStateInfo> buildableSaveStateInfos;
+}
+public class BuildableSaveStateInfo
+{
+	public float PosX;
+	public float PosY;
+	public float ScaleX;
+	public float ScaleY;
+	public float trueRotation;
+	public int buildableId;
+	public float textureScaleX;
+	public float textureScaleY;
+	public string buildableName;
+	public string buildablePathName;
+	public float dimensionsX;
+	public float dimensionsY;
+	public bool oddOrthogonal;
+	public string labelName;
+	public int placementLayer;
+}
 public class Buildable : Area2D
 {
 	public bool _DEBUG = true;
@@ -24,7 +46,8 @@ public class Buildable : Area2D
 	public Vector2 dimensions;
 	public Dictionary<Vector2, Buildable> attachedBuildables;
 
-	public bool OddOrthogonal;
+	public bool oddOrthogonal;
+	public float trueRotation;
 
 	// public bool isIsometric;
 	// public bool isRotationallyIsomorphic;
@@ -33,18 +56,43 @@ public class Buildable : Area2D
 
 	public int placementLayer;
 
-	// public Godot.Collections.Dictionary<string, Buildable> Save()
+	public BuildableSaveStateInfo Save()
+	{
+		BuildableSaveStateInfo buildableSaveStateInfo = new BuildableSaveStateInfo();
+		buildableSaveStateInfo.PosX = Position.x;
+		buildableSaveStateInfo.PosY = Position.y;
+		buildableSaveStateInfo.ScaleX = Scale.x;
+		buildableSaveStateInfo.ScaleY = Scale.y;
+		buildableSaveStateInfo.trueRotation = trueRotation;
+		buildableSaveStateInfo.buildableId = buildableId;
+		buildableSaveStateInfo.textureScaleX = textureScale.x;
+		buildableSaveStateInfo.textureScaleY = textureScale.y;
+		buildableSaveStateInfo.buildableName = buildableName;
+		buildableSaveStateInfo.buildablePathName = buildablePathName;
+		buildableSaveStateInfo.oddOrthogonal = oddOrthogonal;
+		buildableSaveStateInfo.labelName = labelName;
+		buildableSaveStateInfo.placementLayer = placementLayer;
+		return buildableSaveStateInfo;
+	}
+
+	// public Dictionary<string, Buildable> Save()
 	// {
-	// 	return new Godot.Collections.Dictionary<string, Buildable>()
+	// 	return new Dictionary<string, Buildable>()
 	// 	{
+	// 		{"PosX", Position.x},
+	// 		{"PosY", Position.y},
+	// 		{"ScaleX", Scale.x},
+	// 		{"ScaleY", Scale.y},
+	// 		{"RotationX", trueRotation.x},
+	// 		{"RotationY", trueRotation.y},
 	// 		{"buildableId", buildableId},
-	// 		{"textureScaleX", textureScale.X},
-	// 		{"textureScaleY", textureScale.Y},
+	// 		{"textureScaleX", textureScale.x},
+	// 		{"textureScaleY", textureScale.y},
 	// 		{"buildableName", buildableName},
 	// 		{"buildablePathName", buildablePathName},
-	// 		{"dimensionsX", dimensions.X},
-	// 		{"dimensionsY", dimensions.Y},
-	// 		{"OddOrthogonal", OddOrthogonal},
+	// 		{"dimensionsX", dimensions.x},
+	// 		{"dimensionsY", dimensions.y},
+	// 		{"oddOrthogonal", oddOrthogonal},
 	// 		{"labelName", labelName},
 	// 		{"placementLayer", placementLayer}
 	// 	};
@@ -67,20 +115,20 @@ public class Buildable : Area2D
 		}
 		SafeInitializeAttachedBuildables();
 		ZIndex = -1;
-		OddOrthogonal = false;
+		oddOrthogonal = false;
 	}
 
 
 
 	public void RotateCounterClockwiseOrthogonal()
 	{
-		OddOrthogonal = !OddOrthogonal;
+		oddOrthogonal = !oddOrthogonal;
 		this.Rotation = this.Rotation + (float)Math.PI / 2f;
 	}
 
 	public void RotateClockwiseOrthogonal()
 	{
-		OddOrthogonal = !OddOrthogonal;
+		oddOrthogonal = !oddOrthogonal;
 		this.Rotation = this.Rotation - (float)Math.PI / 2f;
 	}
 
@@ -266,12 +314,12 @@ public class Buildable : Area2D
 
 	public bool OddX()
 	{
-		return OddOrthogonal ? dimensions.y % 2 == 1 : dimensions.x % 2 == 1;
+		return oddOrthogonal ? dimensions.y % 2 == 1 : dimensions.x % 2 == 1;
 	}
 
 	public bool OddY()
 	{
-		return OddOrthogonal ? dimensions.x % 2 == 1 : dimensions.y % 2 == 1;
+		return oddOrthogonal ? dimensions.x % 2 == 1 : dimensions.y % 2 == 1;
 	}
 
 	public Vector2 MatchingSocket(Buildable buildable)
