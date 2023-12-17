@@ -81,6 +81,8 @@ public class BuildableEditor : Node2D
 	public List<Buildable> _selected_buildables;
 
 	public MenuContainer _menu_container;
+	public SaveMenuContainer _save_menu_container;
+	public SaveAndLoadHandler _save_and_load_handler;
 	public Panel _palette_container;
 
 	public static float _GRID_BLOCK_SIZE = 40;
@@ -552,6 +554,8 @@ public class BuildableEditor : Node2D
 					GD.Print("Panel palette has child with name: ", buildableButton.Name);
 				}
 				int buttonPaletteIndex = (int)Char.GetNumericValue(buildableButton.Name[buildableButton.Name.Length - 1]);
+				if(buttonPaletteIndex == 0) 
+					buttonPaletteIndex = 10;
 				if (buttonPaletteIndex == paletteBlock)
 				{
 					if (_DEBUG)
