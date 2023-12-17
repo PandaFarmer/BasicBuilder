@@ -322,6 +322,11 @@ public class Buildable : Area2D
 		return oddOrthogonal ? dimensions.x % 2 == 1 : dimensions.y % 2 == 1;
 	}
 
+	public bool HasSocketConnection(Buildable buildable)
+	{
+		return MatchingSocket(buildable)!=Vector2.Zero;
+	}
+
 	public Vector2 MatchingSocket(Buildable buildable)
 	{
 		Dictionary<Vector2, int> socketConnectabilityMap = SocketConnectabilityMap;
