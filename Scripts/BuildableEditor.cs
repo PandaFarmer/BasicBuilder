@@ -119,6 +119,11 @@ public class BuildableEditor : Node2D
 		DisableMenu();
 	}
 
+	public int processedNumericKeyIndex(int numericKeyIndex)
+	{
+		return numericKeyIndex != 0?numericKeyIndex:10;
+	}
+
 	public override void _Input(InputEvent @event)
 	{
 		if (@event is InputEventMouseMotion eventMouseMotion)
@@ -201,7 +206,7 @@ public class BuildableEditor : Node2D
 				for (int numericKeyIndex = 0; numericKeyIndex < 10; numericKeyIndex++)
 				{
 					if (Input.IsActionPressed($"ui_{numericKeyIndex}"))
-						UpdatePalette(numericKeyIndex, hovered_buildableId);
+						UpdatePalette(processedNumericKeyIndex(numericKeyIndex), hovered_buildableId);
 				}
 			}
 			if (_in_build_mode)//update _queued_buildable
@@ -210,7 +215,7 @@ public class BuildableEditor : Node2D
 				for (int numericKeyIndex = 0; numericKeyIndex < 10; numericKeyIndex++)
 				{
 					if (Input.IsActionPressed($"ui_{numericKeyIndex}"))
-						AssignQueuedBuildableFromPalette(numericKeyIndex);
+						AssignQueuedBuildableFromPalette(processedNumericKeyIndex(numericKeyIndex));
 				}
 
 				if (Input.IsActionPressed("ui_rotate_left"))
