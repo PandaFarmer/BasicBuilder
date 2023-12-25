@@ -118,8 +118,6 @@ public class Buildable : Area2D
 		oddOrthogonal = false;
 	}
 
-
-
 	public void RotateCounterClockwiseOrthogonal()
 	{
 		oddOrthogonal = !oddOrthogonal;

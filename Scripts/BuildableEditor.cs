@@ -121,7 +121,21 @@ public class BuildableEditor : Node2D
 
 	public int processedNumericKeyIndex(int numericKeyIndex)
 	{
-		return numericKeyIndex != 0?numericKeyIndex:10;
+		return numericKeyIndex != 0 ? numericKeyIndex : 10;
+	}
+
+	public void SnapQueuedBuildableToCursorLocation()
+	{
+		_cursor_location = SnapToGrid(_cursorLocation, _queued_buildable);
+		_queued_buildable.Position = _cursor_location;
+		if (ValidPlacement(_queued_buildable))
+		{
+			_queued_buildable.SetTextureHueNeutralTransparent();
+		}
+		else
+		{
+			_queued_buildable.SetTextureHueRedTransparent();
+		}
 	}
 
 	public override void _Input(InputEvent @event)
@@ -136,27 +150,18 @@ public class BuildableEditor : Node2D
 			}
 			if (!_in_menu_mode && _queued_buildable != null)
 			{
-				_cursor_location = SnapToGrid(_cursorLocation, _queued_buildable);
-				_queued_buildable.Position = _cursor_location;
-				if (ValidPlacement(_queued_buildable))
-				{
-					_queued_buildable.SetTextureHueNeutralTransparent();
-				}
-				else
-				{
-					_queued_buildable.SetTextureHueRedTransparent();
-				}
+				SnapQueuedBuildableToCursorLocation();
 			}
 		}
 		if (@event is InputEventMouseButton eventMouseButton)
 		{
-			
+
 			if (!eventMouseButton.Pressed)
 			{
-				if(_in_selection_mode)
+				if (_in_selection_mode)
 				{
 					_drag_selection_on = false;
-					
+
 				}
 				//"drop" if _in_selection_mode with buildable
 				return;
@@ -170,7 +175,7 @@ public class BuildableEditor : Node2D
 				}
 				//add code for invalid placement
 			}
-			if(_in_selection_mode)
+			if (_in_selection_mode)
 			{
 				//"assign" _selected_buildable
 			}
@@ -187,7 +192,7 @@ public class BuildableEditor : Node2D
 			}
 			if (Input.IsActionPressed("ui_selection_mode"))
 			{
-				if (_in_menu_mode) 
+				if (_in_menu_mode)
 					SetToSelectionMode();
 				return;
 			}
@@ -220,14 +225,15 @@ public class BuildableEditor : Node2D
 
 				if (Input.IsActionPressed("ui_rotate_left"))
 					_queued_buildable.RotateCounterClockwiseOrthogonal();
-				else if (Input.IsActionPressed("ui_rotate_right"))
+				if (Input.IsActionPressed("ui_rotate_right"))
 					_queued_buildable.RotateClockwiseOrthogonal();
-				else
-					return;
+
+				if (_queued_buildable != null)
+					SnapQueuedBuildableToCursorLocation();
 			}
-			if(_in_selection_mode)
+			if (_in_selection_mode)
 			{
-				if(Input.IsActionPressed("ui_delete"))
+				if (Input.IsActionPressed("ui_delete"))
 				{
 					RemovePlacedBuildable(HoveredBuildableId());
 				}
@@ -242,11 +248,11 @@ public class BuildableEditor : Node2D
 
 	public void RemovePlacedBuildable(int buildableId)
 	{
-		foreach(Node node in GetChildren())
+		foreach (Node node in GetChildren())
 		{
-			if(node is Buildable buildable)
+			if (node is Buildable buildable)
 			{
-				if(buildable.buildableId == buildableId)
+				if (buildable.buildableId == buildableId)
 				{
 					RemoveChild(buildable);
 					return;
@@ -302,9 +308,9 @@ public class BuildableEditor : Node2D
 		{
 			buildableId = _buildables_palette[paletteBlock];
 		}
-		catch(KeyNotFoundException keyNotFoundException)
+		catch (KeyNotFoundException keyNotFoundException)
 		{
-			if(_DEBUG)
+			if (_DEBUG)
 			{
 				GD.Print("WARNING: cannot find paletteBlock, terminating queued buildable assignment");
 			}
@@ -540,15 +546,15 @@ public class BuildableEditor : Node2D
 		{
 			_queued_buildable = (Buildable)_buildables_dictionary[buildableId].Duplicate();
 		}
-		catch(KeyNotFoundException k)
+		catch (KeyNotFoundException k)
 		{
-			if(_DEBUG)
+			if (_DEBUG)
 			{
 				GD.Print("WARNING: cannot find buildableId, terminating queued buildable assignment");
 			}
 			return;
 		}
-		
+
 		_queued_buildable.SetTextureHueNeutralTransparent();
 		_queued_buildable.buildableId = buildableId;
 	}
@@ -585,7 +591,7 @@ public class BuildableEditor : Node2D
 					GD.Print("Panel palette has child with name: ", buildableButton.Name);
 				}
 				int buttonPaletteIndex = (int)Char.GetNumericValue(buildableButton.Name[buildableButton.Name.Length - 1]);
-				if(buttonPaletteIndex == 0) 
+				if (buttonPaletteIndex == 0)
 					buttonPaletteIndex = 10;
 				if (buttonPaletteIndex == paletteBlock)
 				{
