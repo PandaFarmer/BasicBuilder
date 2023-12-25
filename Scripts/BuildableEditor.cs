@@ -297,7 +297,20 @@ public class BuildableEditor : Node2D
 
 	public void AssignQueuedBuildableFromPalette(int paletteBlock)
 	{
-		int buildableId = _buildables_palette[paletteBlock];
+		int buildableId;
+		try
+		{
+			buildableId = _buildables_palette[paletteBlock];
+		}
+		catch(KeyNotFoundException keyNotFoundException)
+		{
+			if(_DEBUG)
+			{
+				GD.Print("WARNING: cannot find paletteBlock, terminating queued buildable assignment");
+			}
+			return;
+		}
+
 		// RemoveChild(_queued_buildable);
 		if (_queued_buildable != null)
 		{
@@ -522,7 +535,20 @@ public class BuildableEditor : Node2D
 
 	public void AssignQueuedBuildable(int buildableId)//assigns and sets opacity
 	{
-		_queued_buildable = (Buildable)_buildables_dictionary[buildableId].Duplicate();
+
+		try
+		{
+			_queued_buildable = (Buildable)_buildables_dictionary[buildableId].Duplicate();
+		}
+		catch(KeyNotFoundException k)
+		{
+			if(_DEBUG)
+			{
+				GD.Print("WARNING: cannot find buildableId, terminating queued buildable assignment");
+			}
+			return;
+		}
+		
 		_queued_buildable.SetTextureHueNeutralTransparent();
 		_queued_buildable.buildableId = buildableId;
 	}
