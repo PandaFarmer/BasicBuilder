@@ -154,7 +154,7 @@ public class BuildableEditor : Node2D
 		//"drop" if _in_selection_mode with buildable
 	}
 
-	public void HandleSelectionAttach()
+	public Buildable FindHoveredBuildable()
 	{
 		foreach (Node node in GetChildren())
 		{
@@ -162,39 +162,25 @@ public class BuildableEditor : Node2D
 			{
 				if (buildable.PointInBounds(_cursor_location))
 				{
-					_selected_buildable = buildable;
-					break;
+					return buildable;
 				}
 			}
 		}
+		return null;
+	}
+
+	public void HandleSelectionAttach()
+	{
+		_selected_buildable = FindHoveredBuildable();
+		
 		//"assign" _selected_buildable
 	}
 
-	public override void _Input(InputEvent @event)
+	public void HandleMouseButtonEvents(InputEventMouseButton eventMouseButton)
 	{
-		if (@event is InputEventMouseMotion eventMouseMotion)
-		{
-
-			_cursor_location = eventMouseMotion.Position;
-			if (_SCREEN_DEBUG && _in_selection_mode)
-			{
-				GD.Print("new selection mode _cursor_location: ", _cursor_location);
-			}
-			if (_queued_buildable != null)
-			{
-				if (_in_build_mode)
-					SnapBuildableToCursorLocation(_queued_buildable);
-				if (_in_selection_mode)
-					SnapBuildableToCursorLocation(_selected_buildable);
-			}
-		}
-		if (@event is InputEventMouseButton eventMouseButton)
-		{
-
-			if (!eventMouseButton.Pressed)
+		if (!eventMouseButton.Pressed)
 			{
 				HandleSelectionDrop();
-
 				return;
 			}
 			if (_in_build_mode && _queued_buildable != null)
@@ -211,6 +197,33 @@ public class BuildableEditor : Node2D
 				HandleSelectionAttach();
 				return;
 			}
+	}
+
+	public void HandleMouseMotionEvent(InputEventMouseMotion eventMouseMotion)
+	{
+		_cursor_location = eventMouseMotion.Position;
+			if (_SCREEN_DEBUG && _in_selection_mode)
+			{
+				GD.Print("new selection mode _cursor_location: ", _cursor_location);
+			}
+			if (_queued_buildable != null)
+			{
+				if (_in_build_mode)
+					SnapBuildableToCursorLocation(_queued_buildable);
+				if (_in_selection_mode)
+					SnapBuildableToCursorLocation(_selected_buildable);
+			}
+	}
+
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is InputEventMouseMotion eventMouseMotion)
+		{
+			HandleMouseMotionEvent(eventMouseMotion);
+		}
+		if (@event is InputEventMouseButton eventMouseButton)
+		{
+			HandleMouseButtonEvents(eventMouseButton);
 		}
 		if (@event is InputEventKey eventKeyPress)
 		{
@@ -272,7 +285,7 @@ public class BuildableEditor : Node2D
 			{
 				if (Input.IsActionPressed("ui_delete"))
 				{
-					RemovePlacedBuildable(HoveredBuildableId());
+					HandleDeleteOnHover();
 				}
 			}
 		}
@@ -283,18 +296,12 @@ public class BuildableEditor : Node2D
 
 	}
 
-	public void RemovePlacedBuildable(int buildableId)
+	public void HandleDeleteOnHover()
 	{
-		foreach (Node node in GetChildren())
+		Buildable buildable = FindHoveredBuildable();
+		if(buildable != null)
 		{
-			if (node is Buildable buildable)
-			{
-				if (buildable.buildableId == buildableId)
-				{
-					RemoveChild(buildable);
-					return;
-				}
-			}
+			RemoveChild(buildable);
 		}
 	}
 
