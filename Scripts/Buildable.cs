@@ -53,6 +53,7 @@ public class Buildable : Area2D
 	// public bool isRotationallyIsomorphic;
 
 	public string labelName;
+	public bool automatedLayerPlacement;
 
 	public int placementLayer;
 
@@ -207,13 +208,31 @@ public class Buildable : Area2D
 		return overlappingBuildables;
 	}
 
+	public bool PointInBounds(Vector2 point)
+	{
+		// return GetOverlappingAreas().Contains(buildable);
+		//in case a more transparent custom version is required:
+		List<Vector2> mmBoundsThis = MinMaxBounds();
+		Vector2 minVThis = mmBoundsThis[0];
+		Vector2 maxVThis = mmBoundsThis[1];
+		
+		bool rv =maxVThis.x >= point.x && maxVThis.y >= point.y && minVThis.x <= point.x && minVThis.y <= point.y;
+		if (_DEBUG)
+		{
+			GD.Print($"mmBoundsThis=> min: {minVThis}, max: {maxVThis}");
+			GD.Print("point: ", point);
+			GD.Print($"Point in bounds: {rv}");
+		}
+		return rv;
+	}
+
 	public bool HasOverlap(Buildable buildable)
 	{
 		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
 		// return GetOverlappingAreas().Contains(buildable);
 		//in case a more transparent custom version is required:
-		List<Vector2> mmBoundsThis = MaxMinBounds();
-		List<Vector2> mmBoundsOther = buildable.MaxMinBounds();
+		List<Vector2> mmBoundsThis = MinMaxBounds();
+		List<Vector2> mmBoundsOther = buildable.MinMaxBounds();
 		if (_SOCKET_DEBUG)
 		{
 			GD.Print("mmBoundsThis: ", mmBoundsThis[0], ", ", mmBoundsThis[1]);
@@ -224,15 +243,14 @@ public class Buildable : Area2D
 		Vector2 minVOther = mmBoundsOther[0];
 		Vector2 maxVOther = mmBoundsOther[1];
 		return !(maxVThis.x <= minVOther.x || maxVThis.y <= minVOther.y || minVThis.x >= maxVOther.x || minVThis.y >= maxVOther.y);
-
 	}
 
 	public bool IsTouching(Buildable buildable)
 	{
 		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
 		//also in case a more transparent custom version is required:
-		List<Vector2> mmBoundsThis = MaxMinBounds();
-		List<Vector2> mmBoundsOther = buildable.MaxMinBounds();
+		List<Vector2> mmBoundsThis = MinMaxBounds();
+		List<Vector2> mmBoundsOther = buildable.MinMaxBounds();
 		Vector2 minVThis = mmBoundsThis[0];
 		Vector2 maxVThis = mmBoundsThis[1];
 		Vector2 minVOther = mmBoundsOther[0];
@@ -442,13 +460,13 @@ public class Buildable : Area2D
 		return normV1 == -normV2;
 	}
 
-	public List<Vector2> MaxMinBounds()
+	public List<Vector2> MinMaxBounds()
 	{
 		BuildableEditor buildableEditor = (BuildableEditor)GetParent();
 		float gridBlockSize = BuildableEditor._GRID_BLOCK_SIZE;
 		dimensions = buildableEditor._buildables_dimensions[buildableId];
-		float halfdimX = (gridBlockSize * dimensions.x) / 2f;
-		float halfdimY = (gridBlockSize * dimensions.y) / 2f;
+		float halfdimX = (gridBlockSize * (oddOrthogonal?dimensions.y:dimensions.x)) / 2f;
+		float halfdimY = (gridBlockSize * (oddOrthogonal?dimensions.x:dimensions.y)) / 2f;
 		Vector2 minV = new Vector2(Position.x - halfdimX, Position.y - halfdimY);
 		Vector2 maxV = new Vector2(Position.x + halfdimX, Position.y + halfdimY);
 		List<Vector2> mmList = new List<Vector2>();

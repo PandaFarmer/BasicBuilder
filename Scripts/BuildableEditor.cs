@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Linq;
+using System.Diagnostics;
 
 public class BuildableInfoListWrapper
 {
@@ -51,13 +52,11 @@ public class TextureScaleHandler
 
 public class BuildableEditor : Node2D
 {
-	public bool _DEBUG = true;
+	public bool _DEBUG = false;
 	public bool _SCREEN_DEBUG = false;
 	public bool _SOCKET_DEBUG = false;
 
 	public static string _BUILD_GROUP = "BUILD_GROUP";
-
-	public Vector2 _cursorLocation;
 
 	public Dictionary<int, Buildable> _buildables_dictionary;
 
@@ -78,7 +77,7 @@ public class BuildableEditor : Node2D
 	public Buildable _queued_buildable;
 	public Buildable _selected_buildable;
 	public bool _drag_selection_on;
-	public List<Buildable> _selected_buildables;
+	// public List<Buildable> _selected_buildables;
 
 	public MenuContainer _menu_container;
 	public SaveMenuContainer _save_menu_container;
@@ -124,18 +123,51 @@ public class BuildableEditor : Node2D
 		return numericKeyIndex != 0 ? numericKeyIndex : 10;
 	}
 
-	public void SnapQueuedBuildableToCursorLocation()
+	public void SnapBuildableToCursorLocation(Buildable buildable)
 	{
-		_cursor_location = SnapToGrid(_cursorLocation, _queued_buildable);
-		_queued_buildable.Position = _cursor_location;
-		if (ValidPlacement(_queued_buildable))
+		if (buildable == null)
+			return;
+		_cursor_location = SnapToGrid(_cursor_location, buildable);
+		buildable.Position = _cursor_location;//SnapToGrid(_cursor_location, buildable);
+		if (ValidPlacement(buildable))
 		{
-			_queued_buildable.SetTextureHueNeutralTransparent();
+			buildable.SetTextureHueNeutralTransparent();
 		}
 		else
 		{
-			_queued_buildable.SetTextureHueRedTransparent();
+			buildable.SetTextureHueRedTransparent();
 		}
+	}
+
+	public void HandleSelectionDrop()
+	{
+		if (_in_selection_mode)
+		{
+			_drag_selection_on = false;
+		}
+		if (_selected_buildable != null)
+		{
+			_selected_buildable.SetTextureOpaque();
+			_selected_buildable.SetTextureHueNeutral();
+			_selected_buildable = null;
+		}
+		//"drop" if _in_selection_mode with buildable
+	}
+
+	public void HandleSelectionAttach()
+	{
+		foreach (Node node in GetChildren())
+		{
+			if (node is Buildable buildable)
+			{
+				if (buildable.PointInBounds(_cursor_location))
+				{
+					_selected_buildable = buildable;
+					break;
+				}
+			}
+		}
+		//"assign" _selected_buildable
 	}
 
 	public override void _Input(InputEvent @event)
@@ -143,14 +175,17 @@ public class BuildableEditor : Node2D
 		if (@event is InputEventMouseMotion eventMouseMotion)
 		{
 
-			_cursorLocation = eventMouseMotion.Position;
+			_cursor_location = eventMouseMotion.Position;
 			if (_SCREEN_DEBUG && _in_selection_mode)
 			{
-				GD.Print("new selection mode _cursorLocation: ", _cursorLocation);
+				GD.Print("new selection mode _cursor_location: ", _cursor_location);
 			}
-			if (!_in_menu_mode && _queued_buildable != null)
+			if (_queued_buildable != null)
 			{
-				SnapQueuedBuildableToCursorLocation();
+				if (_in_build_mode)
+					SnapBuildableToCursorLocation(_queued_buildable);
+				if (_in_selection_mode)
+					SnapBuildableToCursorLocation(_selected_buildable);
 			}
 		}
 		if (@event is InputEventMouseButton eventMouseButton)
@@ -158,12 +193,8 @@ public class BuildableEditor : Node2D
 
 			if (!eventMouseButton.Pressed)
 			{
-				if (_in_selection_mode)
-				{
-					_drag_selection_on = false;
+				HandleSelectionDrop();
 
-				}
-				//"drop" if _in_selection_mode with buildable
 				return;
 			}
 			if (_in_build_mode && _queued_buildable != null)
@@ -171,13 +202,14 @@ public class BuildableEditor : Node2D
 				if (ValidPlacement(_queued_buildable))
 				{
 					PlaceQueuedBuildable();
-
 				}
+
 				//add code for invalid placement
 			}
 			if (_in_selection_mode)
 			{
-				//"assign" _selected_buildable
+				HandleSelectionAttach();
+				return;
 			}
 		}
 		if (@event is InputEventKey eventKeyPress)
@@ -192,8 +224,13 @@ public class BuildableEditor : Node2D
 			}
 			if (Input.IsActionPressed("ui_selection_mode"))
 			{
-				if (_in_menu_mode)
-					SetToSelectionMode();
+				if (!_in_menu_mode)
+				{
+					if (_in_build_mode)
+						SetToSelectionMode();
+					else if (_in_selection_mode)
+						SetToBuildMode();
+				}
 				return;
 			}
 			if (_in_menu_mode)
@@ -229,7 +266,7 @@ public class BuildableEditor : Node2D
 					_queued_buildable.RotateClockwiseOrthogonal();
 
 				if (_queued_buildable != null)
-					SnapQueuedBuildableToCursorLocation();
+					SnapBuildableToCursorLocation(_queued_buildable);
 			}
 			if (_in_selection_mode)
 			{
@@ -268,6 +305,8 @@ public class BuildableEditor : Node2D
 		placementBuildable.SetTextureOpaque();
 		placementBuildable.placementLayer = placementBuildable.PlacementLayer();
 		AddChild(placementBuildable);
+		// AssemblyLoadEventArgs()
+		Debug.Assert(placementBuildable.GetParent() != null);
 		Vector2 attachmentSocket;
 		foreach (Node node in GetChildren())
 		{
@@ -512,10 +551,16 @@ public class BuildableEditor : Node2D
 		_in_build_mode = true;
 		_in_menu_mode = false;
 		_in_selection_mode = false;
+		if (_queued_buildable != null)
+			_queued_buildable.Visible = true;
 	}
 
 	public void SetToMenuMode()
 	{
+		if (_DEBUG)
+		{
+			GD.Print("Setting to Menu mode");
+		}
 		EnableMenu();
 		_in_build_mode = false;
 		_in_menu_mode = true;
@@ -525,10 +570,16 @@ public class BuildableEditor : Node2D
 
 	public void SetToSelectionMode()
 	{
+		if (_DEBUG)
+		{
+			GD.Print("Setting to Selection mode and Disabling Menu");
+		}
 		DisableMenu();
 		_in_build_mode = false;
 		_in_menu_mode = false;
 		_in_selection_mode = true;
+		if (_queued_buildable != null)
+			_queued_buildable.Visible = false;
 	}
 
 	public void ProcessBuildableButtonPress(int buildableId)
@@ -609,7 +660,9 @@ public class BuildableEditor : Node2D
 
 	public Vector2 SnapToGrid(Vector2 position, Buildable buildable)
 	{
-		return new Vector2(ClosestGlobalCoordOnGrid(_cursorLocation.x, 0, buildable.OddX()), ClosestGlobalCoordOnGrid(_cursorLocation.y, 1, buildable.OddY()));
+		if (buildable == null)
+			return position;
+		return new Vector2(ClosestGlobalCoordOnGrid(_cursor_location.x, 0, buildable.OddX()), ClosestGlobalCoordOnGrid(_cursor_location.y, 1, buildable.OddY()));
 	}
 
 	public Vector2 BuildableFlipScale(Buildable buildable, int buildableId)
@@ -634,6 +687,8 @@ public class BuildableEditor : Node2D
 
 	public bool ValidPlacement(Buildable buildable)
 	{
+		if (buildable == null)
+			return false;
 		// if(_SOCKET_DEBUG)
 		// {
 		// 	GD.Print("buildable.GetOverlappingAreas().Count: ", buildable.GetOverlappingAreas().Count);
