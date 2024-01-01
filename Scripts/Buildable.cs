@@ -1,15 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-// using System.Numerics;
 using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
-// using System.Numerics;
 
-public class BuildableSaveStateInfoListWrapper
-{
-	public List<BuildableSaveStateInfo> buildableSaveStateInfos;
-}
 public class BuildableSaveStateInfo
 {
 	public float PosX;

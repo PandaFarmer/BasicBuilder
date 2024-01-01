@@ -80,8 +80,6 @@ public class BuildableEditor : Node2D
 	// public List<Buildable> _selected_buildables;
 
 	public MenuContainer _menu_container;
-	public SaveMenuContainer _save_menu_container;
-	public SaveAndLoadHandler _save_and_load_handler;
 	public Panel _palette_container;
 
 	public static float _GRID_BLOCK_SIZE = 40;
@@ -108,7 +106,6 @@ public class BuildableEditor : Node2D
 		_buildables_layer_requirement_masks = new Dictionary<int, int>();
 
 		_palette_container = (Panel)FindNode("PanelPalette");
-
 
 		SetToSelectionMode();
 		_buildablesRoot = new Node2D();
@@ -215,6 +212,11 @@ public class BuildableEditor : Node2D
 			}
 	}
 
+	public void TurnSaveMenuOn()
+	{
+
+	}
+
 	public override void _Input(InputEvent @event)
 	{
 		if (@event is InputEventMouseMotion eventMouseMotion)
@@ -245,6 +247,10 @@ public class BuildableEditor : Node2D
 						SetToBuildMode();
 				}
 				return;
+			}
+			if(Input.IsActionPressed("ui_cancel"))
+			{
+				SaveHandler.Instance.FlipVisibility();
 			}
 			if (_in_menu_mode)
 			{
