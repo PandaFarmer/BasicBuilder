@@ -1,0 +1,99 @@
+{
+        "buildableInfos":[
+            {
+                "buildable_id":0,
+                "buildable_name":"BlueTile",
+                "path_name":"TileSquareRectBlue",
+                "categories": ["FloorTiles"],
+                "socket_connectabilty_points":[
+                    {"x_value":1,"y_value":0, "sockettype_bit_mask":1, "requirement_bit_mask":0},
+                    {"x_value":0,"y_value":1, "sockettype_bit_mask":1, "requirement_bit_mask":0},
+                    {"x_value":-1,"y_value":0, "sockettype_bit_mask":1, "requirement_bit_mask":0},
+                    {"x_value":0,"y_value":-1, "sockettype_bit_mask":1, "requirement_bit_mask":0}
+                ],
+                "dimension_x":2,
+                "dimension_y":2,
+                "texture_scale_x":0.1,
+                "texture_scale_y":0.1,
+                "source_sink_id":0,
+                "buildable_layer_mask": 1,
+                "buildable_layer_requirement_mask":1
+            },
+            {
+                "buildable_id":1,
+                "buildable_name":"BeigeTile",
+                "path_name":"TileSquareBevelBeige",
+                "categories": ["FloorTiles"],
+                "socket_connectabilty_points":[
+                    {"x_value":1,"y_value":0, "sockettype_bit_mask":1, "requirement_bit_mask":0},
+                    {"x_value":0,"y_value":1, "sockettype_bit_mask":1, "requirement_bit_mask":0},
+                    {"x_value":-1,"y_value":0, "sockettype_bit_mask":1, "requirement_bit_mask":0},
+                    {"x_value":0,"y_value":-1, "sockettype_bit_mask":1, "requirement_bit_mask":0}
+                ],
+                "dimension_x":2,
+                "dimension_y":2,
+                "texture_scale_x":0.1,
+                "texture_scale_y":0.1,
+                "source_sink_id":0,
+                "buildable_layer_mask": 1,
+                "buildable_layer_requirement_mask":1
+            },
+            {
+                "buildable_id":3,
+                "buildable_name":"YellowPipe",
+                "path_name":"YellowPipe",
+                "categories": ["Engines"],
+                "socket_connectabilty_points":[
+                    {"x_value":1,"y_value":0, "sockettype_bit_mask":2, "requirement_bit_mask":2},
+                    {"x_value":-1,"y_value":0, "sockettype_bit_mask":2, "requirement_bit_mask":2}
+                ],
+                "dimension_x":2,
+                "dimension_y":1,
+                "texture_scale_x":0.1,
+                "texture_scale_y":0.1,
+                "source_sink_id":0,
+                "buildable_layer_mask": 0,
+                "buildable_layer_requirement_mask":0
+            },
+            {
+                "buildable_id":4,
+                "buildable_name":"PeachSource",
+                "path_name":"Peach",
+                "categories": ["Engines"],
+                "socket_connectabilty_points":[
+                    {"x_value":1.5,"y_value":0, "sockettype_bit_mask":2, "requirement_bit_mask":2},
+                    {"x_value":0,"y_value":1.5, "sockettype_bit_mask":0, "requirement_bit_mask":0},
+                    {"x_value":-1.5,"y_value":0, "sockettype_bit_mask":2, "requirement_bit_mask":2},
+                    {"x_value":0,"y_value":-1.5, "sockettype_bit_mask":0, "requirement_bit_mask":0}
+                ],
+                "dimension_x":3,
+                "dimension_y":3,
+                "texture_scale_x":0.1,
+                "texture_scale_y":0.1,
+                "source_sink_id":0,
+                "buildable_layer_mask": 0,
+                "buildable_layer_requirement_mask":0
+            },
+            {
+                "buildable_id":5,
+                "buildable_name":"SmallArcReactorSink",
+                "path_name":"SmallArcReactor",
+                "categories": ["Engines"],
+                "socket_connectabilty_points":[
+                    {"x_value":1.5,"y_value":0, "sockettype_bit_mask":2, "requirement_bit_mask":2},
+                    {"x_value":0,"y_value":1.5, "sockettype_bit_mask":0, "requirement_bit_mask":0},
+                    {"x_value":-1.5,"y_value":0, "sockettype_bit_mask":2, "requirement_bit_mask":2},
+                    {"x_value":0,"y_value":-1.5, "sockettype_bit_mask":0, "requirement_bit_mask":0}
+                ],
+                "dimension_x":3,
+                "dimension_y":3,
+                "texture_scale_x":0.1,
+                "texture_scale_y":0.1,
+                "source_sink_id":0,
+                "buildable_layer_mask": 0,
+                "buildable_layer_requirement_mask":0
+            }
+        ]
+        
+    }
+

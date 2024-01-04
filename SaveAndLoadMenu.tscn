@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Scripts/SaveMenuContainer.cs" type="Script" id=1]
+
+[node name="SaveAndLoadScrollContainer" type="PanelContainer"]
+anchor_right = 0.631
+anchor_bottom = 0.638
+margin_left = 89.0
+margin_top = 17.0
+margin_right = 235.856
+margin_bottom = 156.2
+script = ExtResource( 1 )
+
+[node name="ItemList" type="ItemList" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 786.0
+margin_bottom = 515.0
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 786.0
+margin_bottom = 515.0
+
+[node name="LoadButton" type="Button" parent="PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 772.0
+margin_bottom = 501.0
+text = "Load"
+
+[node name="SaveButton" type="Button" parent="PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 772.0
+margin_bottom = 501.0
+text = "Save"
+
+[node name="DeleteButton" type="Button" parent="PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 772.0
+margin_bottom = 501.0
+
+[node name="Title" type="Label" parent="."]
+margin_left = 7.0
+margin_top = 254.0
+margin_right = 786.0
+margin_bottom = 268.0
+
+[connection signal="button_down" from="PanelContainer/LoadButton" to="." method="_ButtonDown"]

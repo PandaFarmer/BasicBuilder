@@ -4,3 +4,9 @@
 !*/Scripts
 !.gitignore
 !*.py
+!*.tscn
+!Buildables.json
+!readme.md
+!.sln
+!*.tres
+!project.godot

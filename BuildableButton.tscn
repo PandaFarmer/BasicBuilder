@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Scripts/BuildableButton.cs" type="Script" id=1]
+
+[sub_resource type="ImageTexture" id=1]
+
+[node name="BuildableButton" type="Button"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+icon = SubResource( 1 )
+script = ExtResource( 1 )
+
+[connection signal="mouse_entered" from="." to="." method="_OnMouseEntered"]
+[connection signal="mouse_exited" from="." to="." method="_OnMouseExited"]

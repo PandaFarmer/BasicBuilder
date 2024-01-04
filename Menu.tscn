@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Scripts/MenuContainer.cs" type="Script" id=1]
+[ext_resource path="res://Scripts/MenuGridContainer.cs" type="Script" id=2]
+
+[node name="MenuContainer" type="TabContainer"]
+margin_left = 49.0
+margin_top = 28.0
+margin_right = 975.0
+margin_bottom = 541.0
+script = ExtResource( 1 )
+
+[node name="FloorTiles" type="ScrollContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="FloorTilesGrid" type="GridContainer" parent="FloorTiles"]
+columns = 6
+script = ExtResource( 2 )
+
+[node name="Engines" type="ScrollContainer" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 60.0
+margin_top = 40.0
+margin_right = -40.0
+margin_bottom = -40.0
+
+[node name="EnginesGrid" type="GridContainer" parent="Engines"]
+columns = 6
+script = ExtResource( 2 )
