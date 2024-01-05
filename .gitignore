@@ -1,7 +1,8 @@
 *
 */
-!BasicBuilder.csproj
 !*/Scripts
+!*/UntrackedScripts
+!BasicBuilder.csproj
 !.gitignore
 !*.py
 !*.tscn
