@@ -379,7 +379,7 @@ public class BuildableEditor : Node2D
 		string texture_path_prefix = "top_down";
 		Buildable buildable = _buildables_dictionary[buildableId];
 		float rotation = _buildables_palette_rotations[paletteBlock];
-		String texture_path = String.Format("res://{0}/{1}{2}_{3}.png", buildable.buildablePathName, buildable.buildablePathName, texture_path_prefix, (int)rotation);
+		String texture_path = String.Format("res://Textures/{0}/{1}{2}_{3}.png", buildable.buildablePathName, buildable.buildablePathName, texture_path_prefix, (int)rotation);
 		Texture texture = GD.Load<Texture>(texture_path);
 		// _queued_buildable.Rotation = ;
 		_queued_buildable.dimensions = _buildables_dimensions[buildableId];//sprite and socket dimensions..
