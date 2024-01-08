@@ -1,8 +1,7 @@
 *
 */
-!*/Scripts
-!*/UntrackedScripts
 !BasicBuilder.csproj
+!*/Scripts
 !.gitignore
 !*.py
 !*.tscn
@@ -11,3 +10,8 @@
 !.sln
 !*.tres
 !project.godot
+!Scripts\SaveHandler.cs
+!Scripts\SaveInfoButton.cs
+!Scripts\SaveMenuContainer.cs
+!Scripts\SLDButton.cs
+!Scripts\Utils.cs
