@@ -465,15 +465,15 @@ public class BuildableEditor : Node2D
 			buildables_layer_masks[buildableInfo.buildable_id] = buildableInfo.buildable_layer_mask;
 			_buildables_layer_requirement_masks[buildableInfo.buildable_id] = buildableInfo.buildable_layer_requirement_mask;
 
-			texture_path = String.Format("res://{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, small_texture_path_suffix);
+			texture_path = String.Format("res://Textures/{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, small_texture_path_suffix);
 			small_texture = GD.Load<Texture>(texture_path);
 			buildable.smallMenuTexture = small_texture;
 
-			texture_path = String.Format("res://{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, medium_texture_path_suffix);
+			texture_path = String.Format("res://Textures/{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, medium_texture_path_suffix);
 			medium_texture = GD.Load<Texture>(texture_path);
 			buildable.mediumMenuTexture = medium_texture;
 
-			texture_path = String.Format("res://{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, large_texture_path_suffix);
+			texture_path = String.Format("res://Textures/{0}/{1}{2}_size{3}.png", buildableInfo.path_name, buildableInfo.path_name, texture_path_prefix, large_texture_path_suffix);
 			large_texture = GD.Load<Texture>(texture_path);
 			buildable.largeMenuTexture = large_texture;
 
